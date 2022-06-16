@@ -13,10 +13,10 @@
     </style>
   </head>
   <body>
-    salut
+    <div id="elm-hangman"></div>
     <script src="./build/main.js"></script>
     <script>
-      Elm.Main.init();
+      Elm.Main.init({ node: document.getElementById("elm-hangman") });
     </script>
   </body>
 </html>

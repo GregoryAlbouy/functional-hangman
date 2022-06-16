@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Browser exposing (Document)
+import Browser
 import Html exposing (Html, button, div, span, text)
 import Html.Attributes exposing (disabled)
 import Html.Events exposing (onClick)
@@ -14,7 +14,8 @@ type alias Model =
 
 
 type Msg
-    = Pick Char
+    = Start
+    | Pick Char
 
 
 wordToGuess : List Char
@@ -24,7 +25,7 @@ wordToGuess =
 
 initialModel : Model
 initialModel =
-    { wordToGuess = wordToGuess
+    { wordToGuess = []
     , pickedLetters = Set.fromList []
     }
 
@@ -36,7 +37,7 @@ alphabet =
 
 main : Program () Model Msg
 main =
-    Browser.document
+    Browser.element
         { init = \_ -> ( initialModel, Cmd.none )
         , view = view
         , update = update
@@ -47,15 +48,25 @@ main =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        Start ->
+            ( { model | wordToGuess = wordToGuess }, Cmd.none )
+
         Pick char ->
             ( { model | pickedLetters = Set.insert char model.pickedLetters }, Cmd.none )
 
 
-view : Model -> Document Msg
+view : Model -> Html Msg
 view model =
-    { title = "Hangman"
-    , body = [ viewHangman model ]
-    }
+    if List.isEmpty model.wordToGuess then
+        viewStart
+
+    else
+        viewHangman model
+
+
+viewStart : Html Msg
+viewStart =
+    button [ onClick Start ] [ text "Start" ]
 
 
 viewHangman : Model -> Html Msg
