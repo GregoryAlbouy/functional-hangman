@@ -24,7 +24,7 @@ type Msg
 
 randomWordUrl : String
 randomWordUrl =
-    "https://random-word-api.herokuapp.com/word?lang=zzz"
+    "https://random-word-api.herokuapp.com/word?lang=en"
 
 
 fetchRandomWord : Cmd Msg
