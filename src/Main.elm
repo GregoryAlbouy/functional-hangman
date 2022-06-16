@@ -4,6 +4,8 @@ import Browser
 import Html exposing (Html, button, div, span, text)
 import Html.Attributes exposing (disabled)
 import Html.Events exposing (onClick)
+import Http
+import Json.Decode as D
 import Set exposing (Set)
 
 
@@ -15,12 +17,18 @@ type alias Model =
 
 type Msg
     = Start
+    | GotRandomWord (Result Http.Error (List String))
     | Pick Char
 
 
-wordToGuess : List Char
-wordToGuess =
-    [ 'h', 'e', 'l', 'l', 'o' ]
+randomWordUrl : String
+randomWordUrl =
+    "https://random-word-api.herokuapp.com/word?lang=en"
+
+
+fetchRandomWord : Cmd Msg
+fetchRandomWord =
+    Http.get { url = randomWordUrl, expect = Http.expectJson GotRandomWord (D.list D.string) }
 
 
 initialModel : Model
@@ -49,7 +57,18 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Start ->
-            ( { model | wordToGuess = wordToGuess }, Cmd.none )
+            ( model, fetchRandomWord )
+
+        GotRandomWord (Ok list) ->
+            case List.head list of
+                Just word ->
+                    ( { model | wordToGuess = String.toList word }, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        GotRandomWord (Err e) ->
+            ( model, Cmd.none )
 
         Pick char ->
             ( { model | pickedLetters = Set.insert char model.pickedLetters }, Cmd.none )
