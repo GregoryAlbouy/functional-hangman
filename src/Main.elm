@@ -1,8 +1,8 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, button, div, span, text)
-import Html.Attributes exposing (disabled)
+import Html exposing (Html, button, div, p, span, text)
+import Html.Attributes exposing (disabled, style)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode as D
@@ -12,6 +12,7 @@ import Set exposing (Set)
 type alias Model =
     { wordToGuess : List Char
     , pickedLetters : Set Char
+    , error : Maybe Http.Error
     }
 
 
@@ -23,7 +24,7 @@ type Msg
 
 randomWordUrl : String
 randomWordUrl =
-    "https://random-word-api.herokuapp.com/word?lang=en"
+    "https://random-word-api.herokuapp.com/word?lang=zzz"
 
 
 fetchRandomWord : Cmd Msg
@@ -35,6 +36,7 @@ initialModel : Model
 initialModel =
     { wordToGuess = []
     , pickedLetters = Set.fromList []
+    , error = Nothing
     }
 
 
@@ -67,8 +69,8 @@ update msg model =
                 Nothing ->
                     ( model, Cmd.none )
 
-        GotRandomWord (Err e) ->
-            ( model, Cmd.none )
+        GotRandomWord (Err error) ->
+            ( { model | error = Just error }, Cmd.none )
 
         Pick char ->
             ( { model | pickedLetters = Set.insert char model.pickedLetters }, Cmd.none )
@@ -76,16 +78,35 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    if List.isEmpty model.wordToGuess then
-        viewStart
+    case model.error of
+        Just error ->
+            viewError error
 
-    else
-        viewHangman model
+        Nothing ->
+            if List.isEmpty model.wordToGuess then
+                viewStart
+
+            else
+                viewHangman model
 
 
 viewStart : Html Msg
 viewStart =
     button [ onClick Start ] [ text "Start" ]
+
+
+viewError : Http.Error -> Html Msg
+viewError error =
+    let
+        message =
+            case error of
+                Http.BadStatus code ->
+                    "Bad status: " ++ String.fromInt code
+
+                _ ->
+                    "Unhandled error"
+    in
+    div [] [ p [ style "color" "red" ] [ text message ], viewStart ]
 
 
 viewHangman : Model -> Html Msg
