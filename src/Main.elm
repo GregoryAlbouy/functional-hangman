@@ -100,17 +100,17 @@ viewHangman model =
 viewKeyboard : Model -> Html Msg
 viewKeyboard model =
     let
-        isCharPicked : Char -> Bool
-        isCharPicked c =
+        isPicked : Char -> Bool
+        isPicked c =
             Set.member c model.pickedLetters
 
-        charToButton : Char -> Html Msg
-        charToButton c =
+        toButton : Char -> Html Msg
+        toButton c =
             button
-                [ onClick (Pick c), disabled (isCharPicked c) ]
+                [ onClick (Pick c), disabled (isPicked c) ]
                 [ charToTextNode c ]
     in
-    div [] (List.map charToButton (Set.toList alphabet))
+    div [] (List.map toButton (Set.toList alphabet))
 
 
 viewCount : Model -> Html Msg
