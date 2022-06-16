@@ -121,19 +121,23 @@ viewCount model =
 viewWord : Model -> Html Msg
 viewWord model =
     let
-        hideIfNotPicked : Char -> Char
-        hideIfNotPicked c =
+        hideUnpicked : Char -> Char
+        hideUnpicked c =
             if Set.member c model.pickedLetters then
                 c
 
             else
                 '_'
 
-        charToSpan : Char -> Html Msg
-        charToSpan c =
+        toSpan : Char -> Html Msg
+        toSpan c =
             span [] [ charToTextNode c ]
+
+        showFoundChars : Char -> Html Msg
+        showFoundChars c =
+            c |> hideUnpicked |> toSpan
     in
-    div [] (List.map (\c -> charToSpan (hideIfNotPicked c)) model.wordToGuess)
+    div [] (List.map showFoundChars model.wordToGuess)
 
 
 charToTextNode : Char -> Html msg
