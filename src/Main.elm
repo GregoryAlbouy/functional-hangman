@@ -79,15 +79,38 @@ update msg model =
         GotRandomWord (Err error) ->
             ( { model | error = Just error }, Cmd.none )
 
-        Pick char ->
-            if isWordFound model || hasNoTriesLeft model then
+        Pick letter ->
+            let
+                isMatch : Bool
+                isMatch =
+                    List.member letter model.wordToGuess
+
+                withPickedLetter =
+                    pickLetter letter model
+            in
+            if isGameOver model then
                 ( model, Cmd.none )
 
-            else if List.member char model.wordToGuess then
-                ( { model | pickedLetters = Set.insert char model.pickedLetters }, Cmd.none )
+            else if isMatch then
+                ( withPickedLetter, Cmd.none )
 
             else
-                ( { model | pickedLetters = Set.insert char model.pickedLetters, remainingTries = model.remainingTries - 1 }, Cmd.none )
+                ( withPickedLetter |> decrementTries, Cmd.none )
+
+
+pickLetter : Char -> Model -> Model
+pickLetter letter model =
+    { model | pickedLetters = Set.insert letter model.pickedLetters }
+
+
+decrementTries : Model -> Model
+decrementTries model =
+    { model | remainingTries = model.remainingTries - 1 }
+
+
+isGameOver : Model -> Bool
+isGameOver model =
+    isWordFound model || hasNoTriesLeft model
 
 
 hasNoTriesLeft : Model -> Bool
@@ -98,8 +121,8 @@ hasNoTriesLeft model =
 isWordFound : Model -> Bool
 isWordFound model =
     let
-        isLetterFound c =
-            Set.member c model.pickedLetters
+        isLetterFound letter =
+            Set.member letter model.pickedLetters
     in
     List.all isLetterFound model.wordToGuess
 
@@ -141,7 +164,7 @@ viewHangman : Model -> Html Msg
 viewHangman model =
     div []
         [ div [] [ viewKeyboard model ]
-        , div [] [ viewTriesLeft model ]
+        , div [] [ viewRemainingTries model ]
         , div [] [ viewWord model ]
         ]
 
@@ -162,8 +185,8 @@ viewKeyboard model =
     div [] (List.map toButton (Set.toList alphabet))
 
 
-viewTriesLeft : Model -> Html Msg
-viewTriesLeft model =
+viewRemainingTries : Model -> Html Msg
+viewRemainingTries model =
     div [] [ text (String.fromInt model.remainingTries) ]
 
 
