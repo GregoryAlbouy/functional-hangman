@@ -166,6 +166,7 @@ viewHangman model =
         [ div [] [ viewKeyboard model ]
         , div [] [ viewRemainingTries model ]
         , div [] [ viewWord model ]
+        , div [] [ viewResult model ]
         ]
 
 
@@ -210,6 +211,23 @@ viewWord model =
             c |> hideUnpicked |> toSpan
     in
     div [] (List.map showFoundChars model.wordToGuess)
+
+
+viewResult : Model -> Html Msg
+viewResult model =
+    let
+        message : String
+        message =
+            if isWordFound model then
+                "You won!"
+
+            else if hasNoTriesLeft model then
+                "You lost!"
+
+            else
+                ""
+    in
+    div [] [ text message ]
 
 
 charToTextNode : Char -> Html msg
