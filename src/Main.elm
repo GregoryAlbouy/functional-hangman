@@ -140,7 +140,7 @@ update msg model =
             if isGameOver model then
                 ( model, Cmd.none )
 
-            else if isMatch letter model then
+            else if isMatch letter model.wordToGuess then
                 ( withPickedLetter, Cmd.none )
 
             else
@@ -152,14 +152,14 @@ pickLetter letter model =
     { model | pickedLetters = Set.insert letter model.pickedLetters }
 
 
-isMatch : Char -> Model -> Bool
-isMatch letter model =
-    List.member letter model.wordToGuess
-
-
 decrementTries : Model -> Model
 decrementTries model =
     { model | remainingTries = model.remainingTries - 1 }
+
+
+isMatch : Char -> List Char -> Bool
+isMatch letter wordToGuess =
+    List.member letter wordToGuess
 
 
 view : Model -> Html Msg
@@ -169,11 +169,12 @@ view model =
             viewError error
 
         Nothing ->
-            if getState model == NotStarted then
-                viewStart
+            case getState model of
+                NotStarted ->
+                    viewStart
 
-            else
-                viewHangman model
+                _ ->
+                    viewHangman model
 
 
 viewStart : Html Msg
@@ -198,19 +199,19 @@ viewError error =
 viewHangman : Model -> Html Msg
 viewHangman model =
     div []
-        [ div [] [ viewKeyboard model ]
-        , div [] [ viewRemainingTries model ]
+        [ div [] [ viewKeyboard model.pickedLetters ]
+        , div [] [ viewRemainingTries model.remainingTries ]
         , div [] [ viewWord model ]
-        , div [] [ viewResult model ]
+        , div [] [ viewResult (getState model) ]
         ]
 
 
-viewKeyboard : Model -> Html Msg
-viewKeyboard model =
+viewKeyboard : Set Char -> Html Msg
+viewKeyboard pickedLetters =
     let
         isPicked : Char -> Bool
         isPicked c =
-            Set.member c model.pickedLetters
+            Set.member c pickedLetters
 
         toButton : Char -> Html Msg
         toButton c =
@@ -221,9 +222,9 @@ viewKeyboard model =
     div [] (List.map toButton (Set.toList alphabet))
 
 
-viewRemainingTries : Model -> Html Msg
-viewRemainingTries model =
-    div [] [ text (String.fromInt model.remainingTries) ]
+viewRemainingTries : Int -> Html Msg
+viewRemainingTries remainingTries =
+    div [] [ text (String.fromInt remainingTries) ]
 
 
 viewWord : Model -> Html Msg
@@ -231,7 +232,7 @@ viewWord model =
     let
         hideUnpicked : Char -> Char
         hideUnpicked c =
-            if isMatch c model || isGameOver model then
+            if isMatch c model.wordToGuess || isGameOver model then
                 c
 
             else
@@ -248,12 +249,12 @@ viewWord model =
     div [] (List.map showFoundChars model.wordToGuess)
 
 
-viewResult : Model -> Html Msg
-viewResult model =
+viewResult : State -> Html Msg
+viewResult state =
     let
         message : String
         message =
-            case getState model of
+            case state of
                 Ended Victory ->
                     "You won!"
 
