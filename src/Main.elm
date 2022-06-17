@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Browser
 import Html exposing (Html, button, div, p, span, text)
-import Html.Attributes exposing (disabled, style)
+import Html.Attributes exposing (classList, disabled, style)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode as D
@@ -21,6 +21,59 @@ type Msg
     = Start
     | GotRandomWord (Result Http.Error (List String))
     | Pick Char
+
+
+type End
+    = Victory
+    | Defeat
+
+
+type State
+    = NotStarted
+    | Running
+    | Ended End
+
+
+getState : Model -> State
+getState model =
+    let
+        isWordSet : Bool
+        isWordSet =
+            not (List.isEmpty model.wordToGuess)
+
+        hasNoTriesLeft : Bool
+        hasNoTriesLeft =
+            model.remainingTries == 0
+
+        isWordFound : Bool
+        isWordFound =
+            let
+                isLetterFound letter =
+                    Set.member letter model.pickedLetters
+            in
+            List.all isLetterFound model.wordToGuess
+    in
+    if not isWordSet then
+        NotStarted
+
+    else if hasNoTriesLeft then
+        Ended Defeat
+
+    else if isWordFound then
+        Ended Victory
+
+    else
+        Running
+
+
+isGameOver : Model -> Bool
+isGameOver model =
+    case getState model of
+        Ended _ ->
+            True
+
+        _ ->
+            False
 
 
 maxTries : Int
@@ -108,25 +161,6 @@ decrementTries model =
     { model | remainingTries = model.remainingTries - 1 }
 
 
-isGameOver : Model -> Bool
-isGameOver model =
-    isWordFound model || hasNoTriesLeft model
-
-
-hasNoTriesLeft : Model -> Bool
-hasNoTriesLeft model =
-    model.remainingTries == 0
-
-
-isWordFound : Model -> Bool
-isWordFound model =
-    let
-        isLetterFound letter =
-            Set.member letter model.pickedLetters
-    in
-    List.all isLetterFound model.wordToGuess
-
-
 view : Model -> Html Msg
 view model =
     case model.error of
@@ -134,7 +168,7 @@ view model =
             viewError error
 
         Nothing ->
-            if List.isEmpty model.wordToGuess then
+            if getState model == NotStarted then
                 viewStart
 
             else
@@ -218,14 +252,15 @@ viewResult model =
     let
         message : String
         message =
-            if isWordFound model then
-                "You won!"
+            case getState model of
+                Ended Victory ->
+                    "You won!"
 
-            else if hasNoTriesLeft model then
-                "You lost!"
+                Ended Defeat ->
+                    "You lost!"
 
-            else
-                ""
+                _ ->
+                    ""
     in
     div [] [ text message ]
 
