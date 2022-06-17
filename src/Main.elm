@@ -210,14 +210,14 @@ viewKeyboard : Set Char -> Html Msg
 viewKeyboard pickedLetters =
     let
         isPicked : Char -> Bool
-        isPicked c =
-            Set.member c pickedLetters
+        isPicked letter =
+            Set.member letter pickedLetters
 
         toButton : Char -> Html Msg
-        toButton c =
+        toButton letter =
             button
-                [ onClick (Pick c), disabled (isPicked c) ]
-                [ charToTextNode c ]
+                [ onClick (Pick letter), disabled (isPicked letter) ]
+                [ charToTextNode letter ]
     in
     div [] (List.map toButton (Set.toList alphabet))
 
@@ -231,22 +231,22 @@ viewWord : Model -> Html msg
 viewWord model =
     let
         hideUnpicked : Char -> Char
-        hideUnpicked c =
-            if isMatch c model.wordToGuess || isGameOver model then
-                c
+        hideUnpicked letter =
+            if isMatch letter model.wordToGuess || isGameOver model then
+                letter
 
             else
                 '_'
 
         toSpan : Char -> Html msg
-        toSpan c =
-            span [] [ charToTextNode c ]
+        toSpan letter =
+            span [] [ charToTextNode letter ]
 
-        showFoundChars : Char -> Html msg
-        showFoundChars c =
-            c |> hideUnpicked |> toSpan
+        showFoundLetters : Char -> Html msg
+        showFoundLetters letter =
+            letter |> hideUnpicked |> toSpan
     in
-    div [] (List.map showFoundChars model.wordToGuess)
+    div [] (List.map showFoundLetters model.wordToGuess)
 
 
 viewResult : State -> Html msg
