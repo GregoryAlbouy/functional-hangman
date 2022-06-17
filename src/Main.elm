@@ -73,7 +73,20 @@ update msg model =
             ( { model | error = Just error }, Cmd.none )
 
         Pick char ->
-            ( { model | pickedLetters = Set.insert char model.pickedLetters }, Cmd.none )
+            if isWordFound model then
+                ( model, Cmd.none )
+
+            else
+                ( { model | pickedLetters = Set.insert char model.pickedLetters }, Cmd.none )
+
+
+isWordFound : Model -> Bool
+isWordFound model =
+    let
+        isLetterFound c =
+            Set.member c model.pickedLetters
+    in
+    List.all isLetterFound model.wordToGuess
 
 
 view : Model -> Html Msg
