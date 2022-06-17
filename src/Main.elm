@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Browser
 import Html exposing (Html, button, div, p, span, text)
-import Html.Attributes exposing (classList, disabled, style)
+import Html.Attributes exposing (disabled, style)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode as D
@@ -134,17 +134,13 @@ update msg model =
 
         Pick letter ->
             let
-                isMatch : Bool
-                isMatch =
-                    List.member letter model.wordToGuess
-
                 withPickedLetter =
                     pickLetter letter model
             in
             if isGameOver model then
                 ( model, Cmd.none )
 
-            else if isMatch then
+            else if isMatch letter model then
                 ( withPickedLetter, Cmd.none )
 
             else
@@ -154,6 +150,11 @@ update msg model =
 pickLetter : Char -> Model -> Model
 pickLetter letter model =
     { model | pickedLetters = Set.insert letter model.pickedLetters }
+
+
+isMatch : Char -> Model -> Bool
+isMatch letter model =
+    List.member letter model.wordToGuess
 
 
 decrementTries : Model -> Model
@@ -230,7 +231,7 @@ viewWord model =
     let
         hideUnpicked : Char -> Char
         hideUnpicked c =
-            if Set.member c model.pickedLetters then
+            if isMatch c model || isGameOver model then
                 c
 
             else
