@@ -222,12 +222,12 @@ viewKeyboard pickedLetters =
     div [] (List.map toButton (Set.toList alphabet))
 
 
-viewRemainingTries : Int -> Html Msg
+viewRemainingTries : Int -> Html msg
 viewRemainingTries remainingTries =
     div [] [ text (String.fromInt remainingTries) ]
 
 
-viewWord : Model -> Html Msg
+viewWord : Model -> Html msg
 viewWord model =
     let
         hideUnpicked : Char -> Char
@@ -238,18 +238,18 @@ viewWord model =
             else
                 '_'
 
-        toSpan : Char -> Html Msg
+        toSpan : Char -> Html msg
         toSpan c =
             span [] [ charToTextNode c ]
 
-        showFoundChars : Char -> Html Msg
+        showFoundChars : Char -> Html msg
         showFoundChars c =
             c |> hideUnpicked |> toSpan
     in
     div [] (List.map showFoundChars model.wordToGuess)
 
 
-viewResult : State -> Html Msg
+viewResult : State -> Html msg
 viewResult state =
     let
         message : String
