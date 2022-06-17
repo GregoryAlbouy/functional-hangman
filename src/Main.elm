@@ -12,6 +12,7 @@ import Set exposing (Set)
 type alias Model =
     { wordToGuess : List Char
     , pickedLetters : Set Char
+    , remainingTries : Int
     , error : Maybe Http.Error
     }
 
@@ -20,6 +21,11 @@ type Msg
     = Start
     | GotRandomWord (Result Http.Error (List String))
     | Pick Char
+
+
+maxTries : Int
+maxTries =
+    10
 
 
 randomWordUrl : String
@@ -36,6 +42,7 @@ initialModel : Model
 initialModel =
     { wordToGuess = []
     , pickedLetters = Set.fromList []
+    , remainingTries = maxTries
     , error = Nothing
     }
 
@@ -73,11 +80,19 @@ update msg model =
             ( { model | error = Just error }, Cmd.none )
 
         Pick char ->
-            if isWordFound model then
+            if isWordFound model || hasNoTriesLeft model then
                 ( model, Cmd.none )
 
-            else
+            else if List.member char model.wordToGuess then
                 ( { model | pickedLetters = Set.insert char model.pickedLetters }, Cmd.none )
+
+            else
+                ( { model | pickedLetters = Set.insert char model.pickedLetters, remainingTries = model.remainingTries - 1 }, Cmd.none )
+
+
+hasNoTriesLeft : Model -> Bool
+hasNoTriesLeft model =
+    model.remainingTries == 0
 
 
 isWordFound : Model -> Bool
@@ -126,7 +141,7 @@ viewHangman : Model -> Html Msg
 viewHangman model =
     div []
         [ div [] [ viewKeyboard model ]
-        , div [] [ viewCount model ]
+        , div [] [ viewTriesLeft model ]
         , div [] [ viewWord model ]
         ]
 
@@ -147,9 +162,9 @@ viewKeyboard model =
     div [] (List.map toButton (Set.toList alphabet))
 
 
-viewCount : Model -> Html Msg
-viewCount model =
-    div [] [ text <| String.fromInt <| Set.size model.pickedLetters ]
+viewTriesLeft : Model -> Html Msg
+viewTriesLeft model =
+    div [] [ text (String.fromInt model.remainingTries) ]
 
 
 viewWord : Model -> Html Msg
