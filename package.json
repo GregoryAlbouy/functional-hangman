@@ -1,0 +1,12 @@
+{
+  "name": "elm-hangman",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "git@github.com:gregoryalbouy/elm-hangman",
+  "author": "Gregory Albouy <gregoryalbouy75@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "npx elm-watch hot",
+    "build": "npx elm-watch make --optimize"
+  }
+}
