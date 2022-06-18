@@ -4,7 +4,7 @@ import Set exposing (Set)
 
 
 type alias Model =
-    { wordToGuess : List Char
+    { wordToGuess : Maybe (List Char)
     , pickedLetters : Set Char
     , remainingTries : Int
     }
@@ -12,7 +12,7 @@ type alias Model =
 
 empty : Model
 empty =
-    { wordToGuess = []
+    { wordToGuess = Nothing
     , pickedLetters = Set.empty
     , remainingTries = 0
     }
@@ -20,7 +20,12 @@ empty =
 
 isStarted : Model -> Bool
 isStarted model =
-    not (List.isEmpty model.wordToGuess)
+    case model.wordToGuess of
+        Just _ ->
+            True
+
+        Nothing ->
+            False
 
 
 isWon : Model -> Bool
@@ -30,22 +35,22 @@ isWon model =
         isLetterFound letter =
             isLetterPicked letter model
     in
-    List.all isLetterFound model.wordToGuess
+    isStarted model && List.all isLetterFound (Maybe.withDefault [] model.wordToGuess)
 
 
 isLost : Model -> Bool
 isLost model =
-    model.remainingTries == 0
+    isStarted model && model.remainingTries == 0
 
 
 isOver : Model -> Bool
 isOver model =
-    isWon model || isLost model
+    isStarted model && (isWon model || isLost model)
 
 
 init : { wordToGuess : String, maxTries : Int } -> Model
 init { wordToGuess, maxTries } =
-    { wordToGuess = List.map Char.toLower (String.toList wordToGuess)
+    { wordToGuess = Just (List.map Char.toLower (String.toList wordToGuess))
     , pickedLetters = Set.empty
     , remainingTries = maxTries
     }
@@ -102,4 +107,4 @@ getWordRepr model emptyRepr =
         showFoundLetters letter =
             hideUnpicked letter
     in
-    List.map showFoundLetters model.wordToGuess
+    List.map showFoundLetters (Maybe.withDefault [] model.wordToGuess)
