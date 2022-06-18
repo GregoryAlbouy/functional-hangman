@@ -1,6 +1,6 @@
 module EngineTests exposing (..)
 
-import Engine exposing (Model, getRemainingTries, init, isLetterPicked, isLost, isOver, isStarted, isWon, pickLetter)
+import Engine exposing (Model, getRemainingTries, getWordRepr, init, isLetterPicked, isLost, isOver, isStarted, isWon, pickLetter)
 import Expect
 import Test exposing (..)
 
@@ -72,6 +72,22 @@ testPickLetter =
         , test "bad pick decrements count" (\_ -> Expect.equal 9 (getRemainingTries badPick))
         , test "duplicate pick is noop" (\_ -> Expect.equal badPick duplicatePick)
         , test "game over pick is noop" (\_ -> Expect.equal lostModel gameOverPick)
+        ]
+
+
+testGetWordRepr : Test
+testGetWordRepr =
+    let
+        model =
+            initModel |> pickLetter 'h' |> pickLetter 'l'
+
+        revealedWord =
+            [ 'h', '_', 'l', 'l', '_' ]
+    in
+    describe "getWordRepr"
+        [ test "reveals found letters" (\_ -> Expect.equalLists revealedWord (getWordRepr model '_'))
+        , test "reveals word on won" (\_ -> Expect.equalLists revealedWord (getWordRepr wonModel '_'))
+        , test "reveals word on lost" (\_ -> Expect.equalLists revealedWord (getWordRepr lostModel '_'))
         ]
 
 
