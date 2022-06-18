@@ -30,6 +30,26 @@ testRunningState =
         ]
 
 
+testWonState : Test
+testWonState =
+    describe "won state"
+        [ test "isStarted" (\_ -> Expect.true "" (isStarted wonModel))
+        , test "isWon" (\_ -> Expect.true "" (isWon wonModel))
+        , test "isLost" (\_ -> Expect.false "" (isLost wonModel))
+        , test "isOver" (\_ -> Expect.true "" (isOver wonModel))
+        ]
+
+
+testLostState : Test
+testLostState =
+    describe "lost state"
+        [ test "isStarted" (\_ -> Expect.true "" (isStarted lostModel))
+        , test "isWon" (\_ -> Expect.false "" (isWon lostModel))
+        , test "isLost" (\_ -> Expect.true "" (isLost lostModel))
+        , test "isOver" (\_ -> Expect.true "" (isOver lostModel))
+        ]
+
+
 testPickLetter : Test
 testPickLetter =
     let
@@ -41,6 +61,9 @@ testPickLetter =
 
         duplicatePick =
             pickLetter 'x' badPick
+
+        gameOverPick =
+            pickLetter 'z' lostModel
     in
     describe "pickLetter"
         [ test "good pick adds picked letter" (\_ -> Expect.true "" (isLetterPicked 'l' goodPick))
@@ -48,6 +71,7 @@ testPickLetter =
         , test "good pick does not decrement count" (\_ -> Expect.equal 10 (getRemainingTries goodPick))
         , test "bad pick decrements count" (\_ -> Expect.equal 9 (getRemainingTries badPick))
         , test "duplicate pick is noop" (\_ -> Expect.equal badPick duplicatePick)
+        , test "game over pick is noop" (\_ -> Expect.equal lostModel gameOverPick)
         ]
 
 
@@ -61,6 +85,18 @@ initModel =
     init { wordToGuess = "hello", maxTries = 10 }
 
 
-modelWithPick : Char -> Model
-modelWithPick letter =
-    pickLetter letter initModel
+lostModel : Model
+lostModel =
+    init { wordToGuess = "hello", maxTries = 3 }
+        |> pickLetter 'a'
+        |> pickLetter 'b'
+        |> pickLetter 'c'
+
+
+wonModel : Model
+wonModel =
+    initModel
+        |> pickLetter 'h'
+        |> pickLetter 'e'
+        |> pickLetter 'l'
+        |> pickLetter 'o'
