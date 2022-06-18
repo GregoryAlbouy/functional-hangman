@@ -136,11 +136,15 @@ update msg model =
             let
                 withPickedLetter =
                     pickLetter letter model
+
+                isMatch : Bool
+                isMatch =
+                    List.member letter model.wordToGuess
             in
             if isGameOver model then
                 ( model, Cmd.none )
 
-            else if isMatch letter model.wordToGuess then
+            else if isMatch then
                 ( withPickedLetter, Cmd.none )
 
             else
@@ -155,11 +159,6 @@ pickLetter letter model =
 decrementTries : Model -> Model
 decrementTries model =
     { model | remainingTries = model.remainingTries - 1 }
-
-
-isMatch : Char -> List Char -> Bool
-isMatch letter wordToGuess =
-    List.member letter wordToGuess
 
 
 view : Model -> Html Msg
@@ -230,9 +229,13 @@ viewRemainingTries remainingTries =
 viewWord : Model -> Html msg
 viewWord model =
     let
+        isMatch : Char -> Bool
+        isMatch letter =
+            Set.member letter model.pickedLetters
+
         hideUnpicked : Char -> Char
         hideUnpicked letter =
-            if isMatch letter model.wordToGuess || isGameOver model then
+            if isMatch letter || isGameOver model then
                 letter
 
             else
