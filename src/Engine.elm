@@ -1,4 +1,4 @@
-module Engine exposing (Model, empty, getWordRepr, init, isLost, isStarted, isWon, pickLetter)
+module Engine exposing (Model, empty, getRemainingTries, getWordRepr, init, isLetterPicked, isLost, isOver, isStarted, isWon, pickLetter)
 
 import Set exposing (Set)
 
@@ -63,6 +63,10 @@ pickLetter letter model =
         isNoop =
             isOver model || isLetterPicked letter model
 
+        isGoodPick : Bool
+        isGoodPick =
+            List.member letter (Maybe.withDefault [] model.wordToGuess)
+
         withPickedLetter : Model
         withPickedLetter =
             { model | pickedLetters = Set.insert letter model.pickedLetters }
@@ -70,7 +74,7 @@ pickLetter letter model =
     if isNoop then
         model
 
-    else if isMatch letter model then
+    else if isGoodPick then
         withPickedLetter
 
     else
@@ -87,17 +91,16 @@ decrementTries m =
     { m | remainingTries = m.remainingTries - 1 }
 
 
-isMatch : Char -> Model -> Bool
-isMatch letter model =
-    Set.member letter model.pickedLetters
-
-
 getWordRepr : Model -> Char -> List Char
 getWordRepr model emptyRepr =
     let
+        isFound : Char -> Bool
+        isFound letter =
+            Set.member letter model.pickedLetters
+
         hideUnpicked : Char -> Char
         hideUnpicked letter =
-            if isMatch letter model || isOver model then
+            if isFound letter || isOver model then
                 letter
 
             else
@@ -108,3 +111,8 @@ getWordRepr model emptyRepr =
             hideUnpicked letter
     in
     List.map showFoundLetters (Maybe.withDefault [] model.wordToGuess)
+
+
+getRemainingTries : Model -> Int
+getRemainingTries model =
+    model.remainingTries
