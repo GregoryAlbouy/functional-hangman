@@ -7,6 +7,7 @@ import Html.Attributes exposing (disabled, style)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode as D
+import Platform.Cmd exposing (Cmd)
 import Set exposing (Set)
 
 
@@ -80,11 +81,6 @@ update msg model =
             ( { model | engine = Engine.pickLetter letter model.engine }, Cmd.none )
 
 
-alterEngine : (Engine.Model -> Engine.Model) -> Model -> Model
-alterEngine setter model =
-    { model | engine = setter model.engine }
-
-
 view : Model -> Html Msg
 view model =
     case model.error of
@@ -92,16 +88,15 @@ view model =
             viewError error
 
         Nothing ->
-            case Engine.getState model.engine of
-                Engine.NotStarted ->
-                    viewStart
+            if Engine.isStarted model.engine then
+                viewHangman model
 
-                _ ->
-                    viewHangman model
+            else
+                viewInit
 
 
-viewStart : Html Msg
-viewStart =
+viewInit : Html Msg
+viewInit =
     button [ onClick Start ] [ text "Start" ]
 
 
@@ -116,7 +111,7 @@ viewError error =
                 _ ->
                     "Unhandled error"
     in
-    div [] [ p [ style "color" "red" ] [ text message ], viewStart ]
+    div [] [ p [ style "color" "red" ] [ text message ], viewInit ]
 
 
 viewHangman : Model -> Html Msg
@@ -125,7 +120,7 @@ viewHangman model =
         [ div [] [ viewKeyboard model.engine.pickedLetters ]
         , div [] [ viewRemainingTries model.engine.remainingTries ]
         , div [] [ viewWord model ]
-        , div [] [ viewResult (Engine.getState model.engine) ]
+        , div [] [ viewResult model.engine ]
         ]
 
 
@@ -160,20 +155,19 @@ viewWord model =
     div [] (List.map toSpan (Engine.getWordRepr model.engine '_'))
 
 
-viewResult : Engine.State -> Html msg
-viewResult state =
+viewResult : Engine.Model -> Html msg
+viewResult engine =
     let
         message : String
         message =
-            case state of
-                Engine.Ended Engine.Victory ->
-                    "You won!"
+            if Engine.isWon engine then
+                "You won!"
 
-                Engine.Ended Engine.Defeat ->
-                    "You lost!"
+            else if Engine.isLost engine then
+                "You lost!"
 
-                _ ->
-                    ""
+            else
+                ""
     in
     div [] [ text message ]
 

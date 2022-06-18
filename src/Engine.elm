@@ -1,4 +1,4 @@
-module Engine exposing (End(..), Model, State(..), empty, getState, getWordRepr, init, pickLetter)
+module Engine exposing (Model, empty, getWordRepr, init, isLost, isStarted, isWon, pickLetter)
 
 import Set exposing (Set)
 
@@ -10,17 +10,6 @@ type alias Model =
     }
 
 
-type State
-    = NotStarted
-    | Running
-    | Ended End
-
-
-type End
-    = Victory
-    | Defeat
-
-
 empty : Model
 empty =
     { wordToGuess = []
@@ -29,46 +18,29 @@ empty =
     }
 
 
-getState : Model -> State
-getState model =
+isStarted : Model -> Bool
+isStarted model =
+    not (List.isEmpty model.wordToGuess)
+
+
+isWon : Model -> Bool
+isWon model =
     let
-        isWordSet : Bool
-        isWordSet =
-            not (List.isEmpty model.wordToGuess)
-
-        hasNoTriesLeft : Bool
-        hasNoTriesLeft =
-            model.remainingTries == 0
-
-        isWordFound : Bool
-        isWordFound =
-            let
-                isLetterFound letter =
-                    Set.member letter model.pickedLetters
-            in
-            List.all isLetterFound model.wordToGuess
+        isLetterFound : Char -> Bool
+        isLetterFound letter =
+            isLetterPicked letter model
     in
-    if not isWordSet then
-        NotStarted
-
-    else if hasNoTriesLeft then
-        Ended Defeat
-
-    else if isWordFound then
-        Ended Victory
-
-    else
-        Running
+    List.all isLetterFound model.wordToGuess
 
 
-isGameOver : Model -> Bool
-isGameOver model =
-    case getState model of
-        Ended _ ->
-            True
+isLost : Model -> Bool
+isLost model =
+    model.remainingTries == 0
 
-        _ ->
-            False
+
+isOver : Model -> Bool
+isOver model =
+    isWon model || isLost model
 
 
 init : { wordToGuess : String, maxTries : Int } -> Model
@@ -82,13 +54,9 @@ init { wordToGuess, maxTries } =
 pickLetter : Char -> Model -> Model
 pickLetter letter model =
     let
-        isAlreadyPicked : Bool
-        isAlreadyPicked =
-            Set.member letter model.pickedLetters
-
         isNoop : Bool
         isNoop =
-            isGameOver model || isAlreadyPicked
+            isOver model || isLetterPicked letter model
 
         withPickedLetter : Model
         withPickedLetter =
@@ -102,6 +70,11 @@ pickLetter letter model =
 
     else
         decrementTries withPickedLetter
+
+
+isLetterPicked : Char -> Model -> Bool
+isLetterPicked letter model =
+    Set.member letter model.pickedLetters
 
 
 decrementTries : Model -> Model
@@ -119,7 +92,7 @@ getWordRepr model emptyRepr =
     let
         hideUnpicked : Char -> Char
         hideUnpicked letter =
-            if isMatch letter model || isGameOver model then
+            if isMatch letter model || isOver model then
                 letter
 
             else
