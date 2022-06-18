@@ -1,6 +1,7 @@
 module Main exposing (..)
 
 import Browser
+import Engine
 import Html exposing (Html, button, div, p, span, text)
 import Html.Attributes exposing (disabled, style)
 import Html.Events exposing (onClick)
@@ -10,15 +11,8 @@ import Set exposing (Set)
 
 
 type alias Model =
-    { engine : Engine
+    { engine : Engine.Model
     , error : Maybe Http.Error
-    }
-
-
-type alias Engine =
-    { wordToGuess : List Char
-    , pickedLetters : Set Char
-    , remainingTries : Int
     }
 
 
@@ -26,59 +20,6 @@ type Msg
     = Start
     | GotRandomWord (Result Http.Error (List String))
     | Pick Char
-
-
-type End
-    = Victory
-    | Defeat
-
-
-type State
-    = NotStarted
-    | Running
-    | Ended End
-
-
-getState : Model -> State
-getState model =
-    let
-        isWordSet : Bool
-        isWordSet =
-            not (List.isEmpty model.engine.wordToGuess)
-
-        hasNoTriesLeft : Bool
-        hasNoTriesLeft =
-            model.engine.remainingTries == 0
-
-        isWordFound : Bool
-        isWordFound =
-            let
-                isLetterFound letter =
-                    Set.member letter model.engine.pickedLetters
-            in
-            List.all isLetterFound model.engine.wordToGuess
-    in
-    if not isWordSet then
-        NotStarted
-
-    else if hasNoTriesLeft then
-        Ended Defeat
-
-    else if isWordFound then
-        Ended Victory
-
-    else
-        Running
-
-
-isGameOver : Model -> Bool
-isGameOver model =
-    case getState model of
-        Ended _ ->
-            True
-
-        _ ->
-            False
 
 
 maxTries : Int
@@ -131,7 +72,7 @@ update msg model =
         GotRandomWord (Ok list) ->
             case List.head list of
                 Just word ->
-                    ( alterEngine (setWordToGuess (String.toList word)) model, Cmd.none )
+                    ( alterEngine (Engine.setWordToGuess (String.toList word)) model, Cmd.none )
 
                 Nothing ->
                     ( model, Cmd.none )
@@ -140,42 +81,12 @@ update msg model =
             ( { model | error = Just error }, Cmd.none )
 
         Pick letter ->
-            let
-                withPickedLetter =
-                    alterEngine (pickLetter letter) model
-
-                isMatch : Bool
-                isMatch =
-                    List.member letter model.engine.wordToGuess
-            in
-            if isGameOver model then
-                ( model, Cmd.none )
-
-            else if isMatch then
-                ( withPickedLetter, Cmd.none )
-
-            else
-                ( withPickedLetter |> alterEngine decrementTries, Cmd.none )
+            ( alterEngine (Engine.pickLetter letter) model, Cmd.none )
 
 
-alterEngine : (Engine -> Engine) -> Model -> Model
+alterEngine : (Engine.Model -> Engine.Model) -> Model -> Model
 alterEngine setter model =
     { model | engine = setter model.engine }
-
-
-setWordToGuess : List Char -> Engine -> Engine
-setWordToGuess wordToGuess engine =
-    { engine | wordToGuess = wordToGuess }
-
-
-pickLetter : Char -> Engine -> Engine
-pickLetter letter engine =
-    { engine | pickedLetters = Set.insert letter engine.pickedLetters }
-
-
-decrementTries : Engine -> Engine
-decrementTries engine =
-    { engine | remainingTries = engine.remainingTries - 1 }
 
 
 view : Model -> Html Msg
@@ -185,8 +96,8 @@ view model =
             viewError error
 
         Nothing ->
-            case getState model of
-                NotStarted ->
+            case Engine.getState model.engine of
+                Engine.NotStarted ->
                     viewStart
 
                 _ ->
@@ -218,7 +129,7 @@ viewHangman model =
         [ div [] [ viewKeyboard model.engine.pickedLetters ]
         , div [] [ viewRemainingTries model.engine.remainingTries ]
         , div [] [ viewWord model ]
-        , div [] [ viewResult (getState model) ]
+        , div [] [ viewResult (Engine.getState model.engine) ]
         ]
 
 
@@ -252,7 +163,7 @@ viewWord model =
 
         hideUnpicked : Char -> Char
         hideUnpicked letter =
-            if isMatch letter || isGameOver model then
+            if isMatch letter || Engine.isGameOver model.engine then
                 letter
 
             else
@@ -269,16 +180,16 @@ viewWord model =
     div [] (List.map showFoundLetters model.engine.wordToGuess)
 
 
-viewResult : State -> Html msg
+viewResult : Engine.State -> Html msg
 viewResult state =
     let
         message : String
         message =
             case state of
-                Ended Victory ->
+                Engine.Ended Engine.Victory ->
                     "You won!"
 
-                Ended Defeat ->
+                Engine.Ended Engine.Defeat ->
                     "You lost!"
 
                 _ ->
