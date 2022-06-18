@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "npx elm-watch hot",
     "build": "npx elm-watch make --optimize",
+    "test": "npx elm-test",
     "clear": "rm -rf ./elm-stuff/* ./build/*"
   }
 }
