@@ -82,11 +82,19 @@ init { wordToGuess, maxTries } =
 pickLetter : Char -> Model -> Model
 pickLetter letter model =
     let
+        isAlreadyPicked : Bool
+        isAlreadyPicked =
+            Set.member letter model.pickedLetters
+
+        isNoop : Bool
+        isNoop =
+            isGameOver model || isAlreadyPicked
+
         withPickedLetter : Model
         withPickedLetter =
             { model | pickedLetters = Set.insert letter model.pickedLetters }
     in
-    if isGameOver model then
+    if isNoop then
         model
 
     else if isMatch letter model then
@@ -97,8 +105,8 @@ pickLetter letter model =
 
 
 decrementTries : Model -> Model
-decrementTries engine =
-    { engine | remainingTries = engine.remainingTries - 1 }
+decrementTries m =
+    { m | remainingTries = m.remainingTries - 1 }
 
 
 isMatch : Char -> Model -> Bool
