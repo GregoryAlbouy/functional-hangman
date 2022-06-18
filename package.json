@@ -9,6 +9,7 @@
     "dev": "npx elm-watch hot",
     "build": "npx elm-watch make --optimize",
     "test": "npx elm-test",
+    "test:watch": "npx elm-test --watch",
     "clear": "rm -rf ./elm-stuff/* ./build/*"
   }
 }
