@@ -10,10 +10,15 @@ import Set exposing (Set)
 
 
 type alias Model =
+    { engine : Engine
+    , error : Maybe Http.Error
+    }
+
+
+type alias Engine =
     { wordToGuess : List Char
     , pickedLetters : Set Char
     , remainingTries : Int
-    , error : Maybe Http.Error
     }
 
 
@@ -39,19 +44,19 @@ getState model =
     let
         isWordSet : Bool
         isWordSet =
-            not (List.isEmpty model.wordToGuess)
+            not (List.isEmpty model.engine.wordToGuess)
 
         hasNoTriesLeft : Bool
         hasNoTriesLeft =
-            model.remainingTries == 0
+            model.engine.remainingTries == 0
 
         isWordFound : Bool
         isWordFound =
             let
                 isLetterFound letter =
-                    Set.member letter model.pickedLetters
+                    Set.member letter model.engine.pickedLetters
             in
-            List.all isLetterFound model.wordToGuess
+            List.all isLetterFound model.engine.wordToGuess
     in
     if not isWordSet then
         NotStarted
@@ -93,9 +98,11 @@ fetchRandomWord =
 
 initialModel : Model
 initialModel =
-    { wordToGuess = []
-    , pickedLetters = Set.fromList []
-    , remainingTries = maxTries
+    { engine =
+        { wordToGuess = []
+        , pickedLetters = Set.fromList []
+        , remainingTries = maxTries
+        }
     , error = Nothing
     }
 
@@ -124,7 +131,7 @@ update msg model =
         GotRandomWord (Ok list) ->
             case List.head list of
                 Just word ->
-                    ( { model | wordToGuess = String.toList word }, Cmd.none )
+                    ( alterEngine (setWordToGuess (String.toList word)) model, Cmd.none )
 
                 Nothing ->
                     ( model, Cmd.none )
@@ -135,11 +142,11 @@ update msg model =
         Pick letter ->
             let
                 withPickedLetter =
-                    pickLetter letter model
+                    alterEngine (pickLetter letter) model
 
                 isMatch : Bool
                 isMatch =
-                    List.member letter model.wordToGuess
+                    List.member letter model.engine.wordToGuess
             in
             if isGameOver model then
                 ( model, Cmd.none )
@@ -148,17 +155,27 @@ update msg model =
                 ( withPickedLetter, Cmd.none )
 
             else
-                ( withPickedLetter |> decrementTries, Cmd.none )
+                ( withPickedLetter |> alterEngine decrementTries, Cmd.none )
 
 
-pickLetter : Char -> Model -> Model
-pickLetter letter model =
-    { model | pickedLetters = Set.insert letter model.pickedLetters }
+alterEngine : (Engine -> Engine) -> Model -> Model
+alterEngine setter model =
+    { model | engine = setter model.engine }
 
 
-decrementTries : Model -> Model
-decrementTries model =
-    { model | remainingTries = model.remainingTries - 1 }
+setWordToGuess : List Char -> Engine -> Engine
+setWordToGuess wordToGuess engine =
+    { engine | wordToGuess = wordToGuess }
+
+
+pickLetter : Char -> Engine -> Engine
+pickLetter letter engine =
+    { engine | pickedLetters = Set.insert letter engine.pickedLetters }
+
+
+decrementTries : Engine -> Engine
+decrementTries engine =
+    { engine | remainingTries = engine.remainingTries - 1 }
 
 
 view : Model -> Html Msg
@@ -198,8 +215,8 @@ viewError error =
 viewHangman : Model -> Html Msg
 viewHangman model =
     div []
-        [ div [] [ viewKeyboard model.pickedLetters ]
-        , div [] [ viewRemainingTries model.remainingTries ]
+        [ div [] [ viewKeyboard model.engine.pickedLetters ]
+        , div [] [ viewRemainingTries model.engine.remainingTries ]
         , div [] [ viewWord model ]
         , div [] [ viewResult (getState model) ]
         ]
@@ -231,7 +248,7 @@ viewWord model =
     let
         isMatch : Char -> Bool
         isMatch letter =
-            Set.member letter model.pickedLetters
+            Set.member letter model.engine.pickedLetters
 
         hideUnpicked : Char -> Char
         hideUnpicked letter =
@@ -249,7 +266,7 @@ viewWord model =
         showFoundLetters letter =
             letter |> hideUnpicked |> toSpan
     in
-    div [] (List.map showFoundLetters model.wordToGuess)
+    div [] (List.map showFoundLetters model.engine.wordToGuess)
 
 
 viewResult : State -> Html msg
