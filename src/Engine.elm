@@ -1,4 +1,4 @@
-module Engine exposing (..)
+module Engine exposing (End(..), Model, State(..), empty, getState, getWordRepr, init, pickLetter)
 
 import Set exposing (Set)
 
@@ -10,15 +10,23 @@ type alias Model =
     }
 
 
+type State
+    = NotStarted
+    | Running
+    | Ended End
+
+
 type End
     = Victory
     | Defeat
 
 
-type State
-    = NotStarted
-    | Running
-    | Ended End
+empty : Model
+empty =
+    { wordToGuess = []
+    , pickedLetters = Set.empty
+    , remainingTries = 0
+    }
 
 
 getState : Model -> State
@@ -63,11 +71,6 @@ isGameOver model =
             False
 
 
-setWordToGuess : List Char -> Model -> Model
-setWordToGuess wordToGuess engine =
-    { engine | wordToGuess = wordToGuess }
-
-
 init : { wordToGuess : String, maxTries : Int } -> Model
 init { wordToGuess, maxTries } =
     { wordToGuess = List.map Char.toLower (String.toList wordToGuess)
@@ -82,19 +85,11 @@ pickLetter letter model =
         withPickedLetter : Model
         withPickedLetter =
             { model | pickedLetters = Set.insert letter model.pickedLetters }
-
-        isMatch : Bool
-        isMatch =
-            Set.member letter model.pickedLetters
-
-        isOver : Bool
-        isOver =
-            isGameOver model
     in
-    if isOver then
+    if isGameOver model then
         model
 
-    else if isMatch then
+    else if isMatch letter model then
         withPickedLetter
 
     else
@@ -104,3 +99,26 @@ pickLetter letter model =
 decrementTries : Model -> Model
 decrementTries engine =
     { engine | remainingTries = engine.remainingTries - 1 }
+
+
+isMatch : Char -> Model -> Bool
+isMatch letter model =
+    Set.member letter model.pickedLetters
+
+
+getWordRepr : Model -> Char -> List Char
+getWordRepr model emptyRepr =
+    let
+        hideUnpicked : Char -> Char
+        hideUnpicked letter =
+            if isMatch letter model || isGameOver model then
+                letter
+
+            else
+                emptyRepr
+
+        showFoundLetters : Char -> Char
+        showFoundLetters letter =
+            hideUnpicked letter
+    in
+    List.map showFoundLetters model.wordToGuess

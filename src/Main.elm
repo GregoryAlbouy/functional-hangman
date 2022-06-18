@@ -39,11 +39,7 @@ fetchRandomWord =
 
 initialModel : Model
 initialModel =
-    { engine =
-        { wordToGuess = []
-        , pickedLetters = Set.fromList []
-        , remainingTries = maxTries
-        }
+    { engine = Engine.empty
     , error = Nothing
     }
 
@@ -72,7 +68,7 @@ update msg model =
         GotRandomWord (Ok list) ->
             case List.head list of
                 Just word ->
-                    ( alterEngine (Engine.setWordToGuess (String.toList word)) model, Cmd.none )
+                    ( { model | engine = Engine.init { wordToGuess = word, maxTries = maxTries } }, Cmd.none )
 
                 Nothing ->
                     ( model, Cmd.none )
@@ -81,7 +77,7 @@ update msg model =
             ( { model | error = Just error }, Cmd.none )
 
         Pick letter ->
-            ( alterEngine (Engine.pickLetter letter) model, Cmd.none )
+            ( { model | engine = Engine.pickLetter letter model.engine }, Cmd.none )
 
 
 alterEngine : (Engine.Model -> Engine.Model) -> Model -> Model
@@ -157,27 +153,11 @@ viewRemainingTries remainingTries =
 viewWord : Model -> Html msg
 viewWord model =
     let
-        isMatch : Char -> Bool
-        isMatch letter =
-            Set.member letter model.engine.pickedLetters
-
-        hideUnpicked : Char -> Char
-        hideUnpicked letter =
-            if isMatch letter || Engine.isGameOver model.engine then
-                letter
-
-            else
-                '_'
-
         toSpan : Char -> Html msg
         toSpan letter =
             span [] [ charToTextNode letter ]
-
-        showFoundLetters : Char -> Html msg
-        showFoundLetters letter =
-            letter |> hideUnpicked |> toSpan
     in
-    div [] (List.map showFoundLetters model.engine.wordToGuess)
+    div [] (List.map toSpan (Engine.getWordRepr model.engine '_'))
 
 
 viewResult : Engine.State -> Html msg
