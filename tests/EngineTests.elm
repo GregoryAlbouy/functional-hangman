@@ -79,21 +79,25 @@ testGetWordRepr : Test
 testGetWordRepr =
     let
         cases =
-            [ { name = "reveals found letters"
-              , exp = [ 'h', '_', 'l', 'l', '_' ]
+            [ { name = "hides letters not found"
+              , model = initModel
+              , exp = [ '_', '_', '_', '_', '_' ]
+              }
+            , { name = "reveals found letters"
               , model = initModel |> pickLetter 'h' |> pickLetter 'l'
+              , exp = [ 'h', '_', 'l', 'l', '_' ]
               }
             , { name = "reveals word on win"
-              , exp = [ 'h', 'e', 'l', 'l', 'o' ]
               , model = wonModel
+              , exp = [ 'h', 'e', 'l', 'l', 'o' ]
               }
             , { name = "reveals word on lost"
-              , exp = [ 'h', 'e', 'l', 'l', 'o' ]
               , model = lostModel
+              , exp = [ 'h', 'e', 'l', 'l', 'o' ]
               }
             , { name = "returns empty set for empty model"
-              , exp = []
               , model = Engine.empty
+              , exp = []
               }
             ]
 
