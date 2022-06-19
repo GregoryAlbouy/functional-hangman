@@ -87,12 +87,12 @@ isLetterPicked letter model =
 
 
 decrementTries : Model -> Model
-decrementTries m =
-    { m | remainingTries = m.remainingTries - 1 }
+decrementTries model =
+    { model | remainingTries = model.remainingTries - 1 }
 
 
-getWordRepr : Model -> Char -> List Char
-getWordRepr model emptyRepr =
+getWordRepr : Char -> Model -> List Char
+getWordRepr emptyRepr model =
     let
         isFound : Char -> Bool
         isFound letter =

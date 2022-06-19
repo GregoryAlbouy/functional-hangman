@@ -9,108 +9,88 @@ testIsStarted : Test
 testIsStarted =
     [ { name = "empty is not started"
       , model = Engine.empty
-      , exp = False
+      , exp = Expect.false ""
       }
     , { name = "init is started"
       , model = initModel
-      , exp = True
+      , exp = Expect.true ""
       }
     , { name = "won is started"
       , model = wonModel
-      , exp = True
+      , exp = Expect.true ""
       }
     , { name = "lost is started"
       , model = lostModel
-      , exp = True
+      , exp = Expect.true ""
       }
     ]
-        |> runStateCases "isStarted" isStarted
+        |> runTestCases "isStarted" isStarted
 
 
 testIsWon : Test
 testIsWon =
     [ { name = "empty is not won"
       , model = Engine.empty
-      , exp = False
+      , exp = Expect.false ""
       }
     , { name = "init is not won"
       , model = initModel
-      , exp = False
+      , exp = Expect.false ""
       }
     , { name = "won is won"
       , model = wonModel
-      , exp = True
+      , exp = Expect.true ""
       }
     , { name = "lost is not won"
       , model = lostModel
-      , exp = False
+      , exp = Expect.false ""
       }
     ]
-        |> runStateCases "isWon" isWon
+        |> runTestCases "isWon" isWon
 
 
 testIsLost : Test
 testIsLost =
     [ { name = "empty is not lost"
       , model = Engine.empty
-      , exp = False
+      , exp = Expect.false ""
       }
     , { name = "init is not lost"
       , model = initModel
-      , exp = False
+      , exp = Expect.false ""
       }
     , { name = "won is not lost"
       , model = wonModel
-      , exp = False
+      , exp = Expect.false ""
       }
     , { name = "lost is lost"
       , model = lostModel
-      , exp = True
+      , exp = Expect.true ""
       }
     ]
-        |> runStateCases "isLost" isLost
+        |> runTestCases "isLost" isLost
 
 
 testIsOver : Test
 testIsOver =
     [ { name = "empty is not over"
       , model = Engine.empty
-      , exp = False
+      , exp = Expect.false ""
       }
     , { name = "init is not over"
       , model = initModel
-      , exp = False
+      , exp = Expect.false ""
       }
     , { name = "won is over"
       , model = wonModel
-      , exp = True
+      , exp = Expect.true ""
       }
     , { name = "lost is over"
       , model = lostModel
-      , exp = True
+      , exp = Expect.true ""
       }
     ]
-        |> runStateCases "isOver" isOver
-
-
-type alias StateCase =
-    { name : String
-    , model : Model
-    , exp : Bool
-    }
-
-
-type alias StateFn =
-    Model -> Bool
-
-
-runStateCases : String -> StateFn -> List StateCase -> Test
-runStateCases desc fn cases =
-    let
-        run c =
-            test c.name (\_ -> Expect.equal c.exp (fn c.model))
-    in
-    describe desc (List.map run cases)
+        |> runTestCases "isOver" isOver
 
 
 testPickLetter : Test
@@ -140,34 +120,28 @@ testPickLetter =
 
 testGetWordRepr : Test
 testGetWordRepr =
-    let
-        cases =
-            [ { name = "hides letters not found"
-              , model = initModel
-              , exp = [ '_', '_', '_', '_', '_' ]
-              }
-            , { name = "reveals found letters"
-              , model = initModel |> pickLetter 'h' |> pickLetter 'l'
-              , exp = [ 'h', '_', 'l', 'l', '_' ]
-              }
-            , { name = "reveals word on win"
-              , model = wonModel
-              , exp = [ 'h', 'e', 'l', 'l', 'o' ]
-              }
-            , { name = "reveals word on lost"
-              , model = lostModel
-              , exp = [ 'h', 'e', 'l', 'l', 'o' ]
-              }
-            , { name = "returns empty set for empty model"
-              , model = Engine.empty
-              , exp = []
-              }
-            ]
-
-        run c =
-            test c.name (\_ -> Expect.equalLists c.exp (getWordRepr c.model '_'))
-    in
-    describe "getWordRepr" (List.map run cases)
+    [ { name = "hides letters not found"
+      , model = initModel
+      , exp = Expect.equalLists [ '_', '_', '_', '_', '_' ]
+      }
+    , { name = "reveals found letters"
+      , model = initModel |> pickLetter 'h' |> pickLetter 'l'
+      , exp = Expect.equalLists [ 'h', '_', 'l', 'l', '_' ]
+      }
+    , { name = "reveals word on win"
+      , model = wonModel
+      , exp = Expect.equalLists [ 'h', 'e', 'l', 'l', 'o' ]
+      }
+    , { name = "reveals word on lost"
+      , model = lostModel
+      , exp = Expect.equalLists [ 'h', 'e', 'l', 'l', 'o' ]
+      }
+    , { name = "returns empty set for empty model"
+      , model = Engine.empty
+      , exp = Expect.equalLists []
+      }
+    ]
+        |> runTestCases "getWordRepr" (getWordRepr '_')
 
 
 initModel : Model
@@ -190,3 +164,19 @@ wonModel =
         |> pickLetter 'e'
         |> pickLetter 'l'
         |> pickLetter 'o'
+
+
+type alias StateCase a =
+    { name : String
+    , model : Model
+    , exp : a -> Expect.Expectation
+    }
+
+
+runTestCases : String -> (Model -> a) -> List (StateCase a) -> Test
+runTestCases desc fn cases =
+    let
+        run c =
+            test c.name (\_ -> c.exp (fn c.model))
+    in
+    describe desc (List.map run cases)

@@ -152,7 +152,7 @@ viewWord model =
         toSpan letter =
             span [] [ charToTextNode letter ]
     in
-    div [] (List.map toSpan (Engine.getWordRepr model.engine '_'))
+    div [] (List.map toSpan (Engine.getWordRepr '_' model.engine))
 
 
 viewResult : Engine.Model -> Html msg
