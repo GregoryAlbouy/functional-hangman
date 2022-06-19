@@ -78,20 +78,25 @@ testPickLetter =
 testGetWordRepr : Test
 testGetWordRepr =
     let
-        model =
-            initModel |> pickLetter 'h' |> pickLetter 'l'
+        cases =
+            [ { name = "reveals found letters"
+              , exp = [ 'h', '_', 'l', 'l', '_' ]
+              , model = initModel |> pickLetter 'h' |> pickLetter 'l'
+              }
+            , { name = "reveals word on win"
+              , exp = [ 'h', 'e', 'l', 'l', 'o' ]
+              , model = wonModel
+              }
+            , { name = "reveals word on lost"
+              , exp = [ 'h', 'e', 'l', 'l', 'o' ]
+              , model = lostModel
+              }
+            ]
 
-        foundLetters =
-            [ 'h', '_', 'l', 'l', '_' ]
-
-        revealedWord =
-            [ 'h', 'e', 'l', 'l', 'o' ]
+        run c =
+            test c.name (\_ -> Expect.equalLists c.exp (getWordRepr c.model '_'))
     in
-    describe "getWordRepr"
-        [ test "reveals found letters" (\_ -> Expect.equalLists foundLetters (getWordRepr model '_'))
-        , test "reveals word on won" (\_ -> Expect.equalLists revealedWord (getWordRepr wonModel '_'))
-        , test "reveals word on lost" (\_ -> Expect.equalLists revealedWord (getWordRepr lostModel '_'))
-        ]
+    describe "getWordRepr" (List.map run cases)
 
 
 emptyModel : Model
