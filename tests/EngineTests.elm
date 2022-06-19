@@ -118,6 +118,32 @@ testPickLetter =
         ]
 
 
+testGetRemainingTries : Test
+testGetRemainingTries =
+    [ { name = "good pick does not decrement"
+      , model = initModel |> pickLetter 'l'
+      , exp = Expect.equal 3
+      }
+    , { name = "bad pick decrements"
+      , model = initModel |> pickLetter 'x'
+      , exp = Expect.equal 2
+      }
+    , { name = "duplicate pick does not decrement"
+      , model = initModel |> pickLetter 'x' |> pickLetter 'x'
+      , exp = Expect.equal 2
+      }
+    , { name = "post-win pick does not decrement"
+      , model = wonModel |> pickLetter 'x'
+      , exp = Expect.equal 3
+      }
+    , { name = "post-lose pick does not decrement"
+      , model = lostModel |> pickLetter 'x'
+      , exp = Expect.equal 0
+      }
+    ]
+        |> runTestCases "getRemainingTries" getRemainingTries
+
+
 testGetWordRepr : Test
 testGetWordRepr =
     [ { name = "hides letters not found"
