@@ -81,11 +81,14 @@ testGetWordRepr =
         model =
             initModel |> pickLetter 'h' |> pickLetter 'l'
 
-        revealedWord =
+        foundLetters =
             [ 'h', '_', 'l', 'l', '_' ]
+
+        revealedWord =
+            [ 'h', 'e', 'l', 'l', 'o' ]
     in
     describe "getWordRepr"
-        [ test "reveals found letters" (\_ -> Expect.equalLists revealedWord (getWordRepr model '_'))
+        [ test "reveals found letters" (\_ -> Expect.equalLists foundLetters (getWordRepr model '_'))
         , test "reveals word on won" (\_ -> Expect.equalLists revealedWord (getWordRepr wonModel '_'))
         , test "reveals word on lost" (\_ -> Expect.equalLists revealedWord (getWordRepr lostModel '_'))
         ]
