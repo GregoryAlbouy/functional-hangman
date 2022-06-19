@@ -111,8 +111,6 @@ testPickLetter =
     describe "pickLetter"
         [ test "good pick adds picked letter" (\_ -> Expect.true "" (isLetterPicked 'l' goodPick))
         , test "bad pick adds picked letter" (\_ -> Expect.true "" (isLetterPicked 'x' badPick))
-        , test "good pick does not decrement count" (\_ -> Expect.equal 3 (getRemainingTries goodPick))
-        , test "bad pick decrements count" (\_ -> Expect.equal 2 (getRemainingTries badPick))
         , test "duplicate pick is noop" (\_ -> Expect.equal badPick duplicatePick)
         , test "game over pick is noop" (\_ -> Expect.equal lostModel gameOverPick)
         ]
