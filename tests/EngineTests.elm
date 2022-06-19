@@ -96,24 +96,40 @@ testIsOver =
 testPickLetter : Test
 testPickLetter =
     let
-        goodPick =
-            pickLetter 'l' initModel
-
-        badPick =
-            pickLetter 'x' initModel
-
-        duplicatePick =
-            pickLetter 'x' badPick
-
-        gameOverPick =
-            pickLetter 'z' lostModel
+        run c =
+            test c.name
+                (\_ ->
+                    c.exp
+                        (c.model
+                            |> pickLetter c.pickedLetter
+                            |> isLetterPicked c.pickedLetter
+                        )
+                )
     in
     describe "pickLetter"
-        [ test "good pick adds picked letter" (\_ -> Expect.true "" (isLetterPicked 'l' goodPick))
-        , test "bad pick adds picked letter" (\_ -> Expect.true "" (isLetterPicked 'x' badPick))
-        , test "duplicate pick is noop" (\_ -> Expect.equal badPick duplicatePick)
-        , test "game over pick is noop" (\_ -> Expect.equal lostModel gameOverPick)
-        ]
+        ([ { name = "good pick adds picked letter"
+           , model = initModel
+           , pickedLetter = 'l'
+           , exp = Expect.true ""
+           }
+         , { name = "bad pick adds picked letter"
+           , model = initModel
+           , pickedLetter = 'x'
+           , exp = Expect.true ""
+           }
+         , { name = "post-win pick does not add picked letter"
+           , model = wonModel
+           , pickedLetter = 'x'
+           , exp = Expect.false ""
+           }
+         , { name = "post-lose does not add picked letter"
+           , model = lostModel
+           , pickedLetter = 'l'
+           , exp = Expect.false ""
+           }
+         ]
+            |> List.map run
+        )
 
 
 testGetRemainingTries : Test
