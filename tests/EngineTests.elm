@@ -91,6 +91,10 @@ testGetWordRepr =
               , exp = [ 'h', 'e', 'l', 'l', 'o' ]
               , model = lostModel
               }
+            , { name = "returns empty set for empty model"
+              , exp = []
+              , model = Engine.empty
+              }
             ]
 
         run c =
