@@ -5,18 +5,13 @@ import Expect
 import Test exposing (..)
 
 
-runningModel : Model
-runningModel =
-    pickLetter 'l' (init { wordToGuess = "hello", maxTries = 10 })
-
-
 testEmptyState : Test
 testEmptyState =
     describe "empty state"
-        [ test "isStarted" (\_ -> Expect.false "" (isStarted emptyModel))
-        , test "isWon" (\_ -> Expect.false "" (isWon emptyModel))
-        , test "isLost" (\_ -> Expect.false "" (isLost emptyModel))
-        , test "isOver" (\_ -> Expect.false "" (isOver emptyModel))
+        [ test "isStarted" (\_ -> Expect.false "" (isStarted Engine.empty))
+        , test "isWon" (\_ -> Expect.false "" (isWon Engine.empty))
+        , test "isLost" (\_ -> Expect.false "" (isLost Engine.empty))
+        , test "isOver" (\_ -> Expect.false "" (isOver Engine.empty))
         ]
 
 
@@ -68,8 +63,8 @@ testPickLetter =
     describe "pickLetter"
         [ test "good pick adds picked letter" (\_ -> Expect.true "" (isLetterPicked 'l' goodPick))
         , test "bad pick adds picked letter" (\_ -> Expect.true "" (isLetterPicked 'x' badPick))
-        , test "good pick does not decrement count" (\_ -> Expect.equal 10 (getRemainingTries goodPick))
-        , test "bad pick decrements count" (\_ -> Expect.equal 9 (getRemainingTries badPick))
+        , test "good pick does not decrement count" (\_ -> Expect.equal 3 (getRemainingTries goodPick))
+        , test "bad pick decrements count" (\_ -> Expect.equal 2 (getRemainingTries badPick))
         , test "duplicate pick is noop" (\_ -> Expect.equal badPick duplicatePick)
         , test "game over pick is noop" (\_ -> Expect.equal lostModel gameOverPick)
         ]
@@ -107,19 +102,14 @@ testGetWordRepr =
     describe "getWordRepr" (List.map run cases)
 
 
-emptyModel : Model
-emptyModel =
-    Engine.empty
-
-
 initModel : Model
 initModel =
-    init { wordToGuess = "hello", maxTries = 10 }
+    init { wordToGuess = "hello", maxTries = 3 }
 
 
 lostModel : Model
 lostModel =
-    init { wordToGuess = "hello", maxTries = 3 }
+    initModel
         |> pickLetter 'a'
         |> pickLetter 'b'
         |> pickLetter 'c'
