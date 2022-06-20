@@ -6,7 +6,7 @@ import Set exposing (Set)
 type alias Model =
     { wordToGuess : Maybe (List Char)
     , pickedLetters : Set Char
-    , remainingTries : Int
+    , maxTries : Int
     }
 
 
@@ -14,7 +14,7 @@ empty : Model
 empty =
     { wordToGuess = Nothing
     , pickedLetters = Set.empty
-    , remainingTries = 0
+    , maxTries = 0
     }
 
 
@@ -40,19 +40,19 @@ isWon model =
 
 isLost : Model -> Bool
 isLost model =
-    isStarted model && model.remainingTries == 0
+    isStarted model && getRemainingTries model == 0
 
 
 isOver : Model -> Bool
 isOver model =
-    isStarted model && (isWon model || isLost model)
+    isWon model || isLost model
 
 
 init : { wordToGuess : String, maxTries : Int } -> Model
 init { wordToGuess, maxTries } =
     { wordToGuess = Just (List.map Char.toLower (String.toList wordToGuess))
     , pickedLetters = Set.empty
-    , remainingTries = maxTries
+    , maxTries = maxTries
     }
 
 
@@ -63,10 +63,6 @@ pickLetter letter model =
         isNoop =
             isOver model || isLetterPicked letter model
 
-        isGoodPick : Bool
-        isGoodPick =
-            List.member letter (Maybe.withDefault [] model.wordToGuess)
-
         withPickedLetter : Model
         withPickedLetter =
             { model | pickedLetters = Set.insert letter model.pickedLetters }
@@ -74,11 +70,8 @@ pickLetter letter model =
     if isNoop then
         model
 
-    else if isGoodPick then
-        withPickedLetter
-
     else
-        decrementTries withPickedLetter
+        withPickedLetter
 
 
 isLetterPicked : Char -> Model -> Bool
@@ -86,21 +79,17 @@ isLetterPicked letter model =
     Set.member letter model.pickedLetters
 
 
-decrementTries : Model -> Model
-decrementTries model =
-    { model | remainingTries = model.remainingTries - 1 }
+isLetterMatch : Char -> Model -> Bool
+isLetterMatch letter model =
+    List.member letter (Maybe.withDefault [] model.wordToGuess)
 
 
 getWordRepr : Char -> Model -> List Char
 getWordRepr emptyRepr model =
     let
-        isFound : Char -> Bool
-        isFound letter =
-            Set.member letter model.pickedLetters
-
         hideUnpicked : Char -> Char
         hideUnpicked letter =
-            if isFound letter || isOver model then
+            if isLetterPicked letter model || isOver model then
                 letter
 
             else
@@ -115,4 +104,30 @@ getWordRepr emptyRepr model =
 
 getRemainingTries : Model -> Int
 getRemainingTries model =
-    model.remainingTries
+    Set.foldl
+        (\letter remainingTries ->
+            if isLetterMatch letter model then
+                remainingTries
+
+            else
+                remainingTries - 1
+        )
+        model.maxTries
+        model.pickedLetters
+
+
+
+-- getRemainingTries : Model -> Int
+-- getRemainingTries model =
+--     let
+--         substractToMaxTries : Int -> Int
+--         substractToMaxTries n =
+--             model.maxTries - n
+--         isUnmatched : Char -> Bool
+--         isUnmatched letter =
+--             not (isLetterMatch letter model)
+--     in
+--     model.pickedLetters
+--         |> Set.filter isUnmatched
+--         |> Set.size
+--         |> substractToMaxTries

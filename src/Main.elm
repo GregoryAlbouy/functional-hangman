@@ -118,7 +118,7 @@ viewHangman : Model -> Html Msg
 viewHangman model =
     div []
         [ div [] [ viewKeyboard model.engine.pickedLetters ]
-        , div [] [ viewRemainingTries model.engine.remainingTries ]
+        , div [] [ viewRemainingTries (Engine.getRemainingTries model.engine) ]
         , div [] [ viewWord model ]
         , div [] [ viewResult model.engine ]
         ]
