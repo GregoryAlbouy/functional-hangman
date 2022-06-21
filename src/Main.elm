@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import Browser
-import Engine
+import Engine exposing (End(..), State(..))
 import Html exposing (Html, button, div, p, span, text)
 import Html.Attributes exposing (disabled, style)
 import Html.Events exposing (onClick)
@@ -93,11 +93,12 @@ view model =
             viewError error
 
         Nothing ->
-            if Engine.isStarted model.engine then
-                viewHangman model
+            case Engine.state model.engine of
+                NotStarted ->
+                    viewInit
 
-            else
-                viewInit
+                _ ->
+                    viewHangman model
 
 
 viewInit : Html Msg
@@ -173,14 +174,15 @@ viewResult engine =
     let
         message : String
         message =
-            if Engine.isWon engine then
-                "You won!"
+            case Engine.state engine of
+                Ended Victory ->
+                    "You won!"
 
-            else if Engine.isLost engine then
-                "You lost!"
+                Ended Defeat ->
+                    "You lost!"
 
-            else
-                ""
+                _ ->
+                    ""
     in
     div [] [ text message ]
 
