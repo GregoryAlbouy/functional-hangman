@@ -1,4 +1,4 @@
-module Engine exposing (Model, chancesLeft, empty, init, isLetterPicked, isLost, isOver, isStarted, isWon, pickLetter, wordRepr)
+module Engine exposing (End(..), Model, State(..), chancesLeft, empty, init, isLetterPicked, isLost, isOver, isStarted, isWon, pickLetter, state, wordRepr)
 
 import Set exposing (Set)
 
@@ -8,6 +8,34 @@ type alias Model =
     , pickedLetters : Set Char
     , chances : Int
     }
+
+
+type State
+    = NotStarted
+    | Running
+    | Ended End
+
+
+type End
+    = Victory
+    | Defeat
+
+
+state : Model -> State
+state model =
+    case model.word of
+        Nothing ->
+            NotStarted
+
+        Just _ ->
+            if not (isOver model) then
+                Running
+
+            else if isWon model then
+                Ended Victory
+
+            else
+                Ended Defeat
 
 
 empty : Model
