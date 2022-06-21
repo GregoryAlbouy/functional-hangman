@@ -186,7 +186,7 @@ viewResult engine =
 
 
 
--- UTILS
+-- HELPERS
 
 
 charSetFromRange : Char -> Char -> Set Char

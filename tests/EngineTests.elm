@@ -5,6 +5,36 @@ import Expect
 import Test exposing (..)
 
 
+
+-- STUBS
+
+
+initModel : Model
+initModel =
+    init "hello" 3
+
+
+lostModel : Model
+lostModel =
+    initModel
+        |> pickLetter 'a'
+        |> pickLetter 'b'
+        |> pickLetter 'c'
+
+
+wonModel : Model
+wonModel =
+    initModel
+        |> pickLetter 'h'
+        |> pickLetter 'e'
+        |> pickLetter 'l'
+        |> pickLetter 'o'
+
+
+
+-- TESTS
+
+
 testIsStarted : Test
 testIsStarted =
     [ { name = "empty is not started"
@@ -183,26 +213,8 @@ testGetWordRepr =
         |> runTestCases "getWordRepr" (wordRepr '_')
 
 
-initModel : Model
-initModel =
-    init "hello" 3
 
-
-lostModel : Model
-lostModel =
-    initModel
-        |> pickLetter 'a'
-        |> pickLetter 'b'
-        |> pickLetter 'c'
-
-
-wonModel : Model
-wonModel =
-    initModel
-        |> pickLetter 'h'
-        |> pickLetter 'e'
-        |> pickLetter 'l'
-        |> pickLetter 'o'
+-- HELPERS
 
 
 type alias StateCase a =
