@@ -58,20 +58,11 @@ init { wordToGuess, maxTries } =
 
 pickLetter : Char -> Model -> Model
 pickLetter letter model =
-    let
-        isNoop : Bool
-        isNoop =
-            isOver model || isLetterPicked letter model
-
-        withPickedLetter : Model
-        withPickedLetter =
-            { model | pickedLetters = Set.insert letter model.pickedLetters }
-    in
-    if isNoop then
+    if isOver model || isLetterPicked letter model then
         model
 
     else
-        withPickedLetter
+        { model | pickedLetters = Set.insert letter model.pickedLetters }
 
 
 isLetterPicked : Char -> Model -> Bool
@@ -127,7 +118,4 @@ getRemainingTries model =
 --         isUnmatched letter =
 --             not (isLetterMatch letter model)
 --     in
---     model.pickedLetters
---         |> Set.filter isUnmatched
---         |> Set.size
---         |> substractToMaxTries
+--     substractToMaxTries <| Set.size <| Set.filter isUnmatched <| model.pickedLetters
