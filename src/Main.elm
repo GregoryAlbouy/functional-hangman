@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Main exposing (main)
 
 import Browser
 import Engine
@@ -11,16 +11,30 @@ import Platform.Cmd exposing (Cmd)
 import Set exposing (Set)
 
 
+
+-- MODEL
+
+
 type alias Model =
     { engine : Engine.Model
     , error : Maybe Http.Error
     }
 
 
-type Msg
-    = Start
-    | GotRandomWord (Result Http.Error (List String))
-    | Pick Char
+initialModel : Model
+initialModel =
+    { engine = Engine.empty
+    , error = Nothing
+    }
+
+
+
+-- CONSTANTS
+
+
+alphabet : Set Char
+alphabet =
+    charSetFromRange 'a' 'z'
 
 
 maxTries : Int
@@ -33,31 +47,14 @@ randomWordUrl =
     "https://random-word-api.herokuapp.com/word?lang=en"
 
 
-fetchRandomWord : Cmd Msg
-fetchRandomWord =
-    Http.get { url = randomWordUrl, expect = Http.expectJson GotRandomWord (D.list D.string) }
+
+-- UPDATE
 
 
-initialModel : Model
-initialModel =
-    { engine = Engine.empty
-    , error = Nothing
-    }
-
-
-alphabet : Set Char
-alphabet =
-    Set.fromList [ 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' ]
-
-
-main : Program () Model Msg
-main =
-    Browser.element
-        { init = \_ -> ( initialModel, Cmd.none )
-        , view = view
-        , update = update
-        , subscriptions = \_ -> Sub.none
-        }
+type Msg
+    = Start
+    | GotRandomWord (Result Http.Error (List String))
+    | Pick Char
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -69,7 +66,9 @@ update msg model =
         GotRandomWord (Ok list) ->
             case List.head list of
                 Just word ->
-                    ( { model | engine = Engine.init { wordToGuess = word, maxTries = maxTries } }, Cmd.none )
+                    ( { model | engine = Engine.init { wordToGuess = word, maxTries = maxTries } }
+                    , Cmd.none
+                    )
 
                 Nothing ->
                     ( model, Cmd.none )
@@ -78,7 +77,13 @@ update msg model =
             ( { model | error = Just error }, Cmd.none )
 
         Pick letter ->
-            ( { model | engine = Engine.pickLetter letter model.engine }, Cmd.none )
+            ( { model | engine = Engine.pickLetter letter model.engine }
+            , Cmd.none
+            )
+
+
+
+-- VIEW
 
 
 view : Model -> Html Msg
@@ -97,7 +102,12 @@ view model =
 
 viewInit : Html Msg
 viewInit =
-    button [ onClick Start ] [ text "Start" ]
+    viewStartButton "Start"
+
+
+viewStartButton : String -> Html Msg
+viewStartButton content =
+    button [ onClick Start ] [ text content ]
 
 
 viewError : Http.Error -> Html Msg
@@ -111,7 +121,10 @@ viewError error =
                 _ ->
                     "Unhandled error"
     in
-    div [] [ p [ style "color" "red" ] [ text message ], viewInit ]
+    div []
+        [ p [ style "color" "red" ] [ text message ]
+        , viewInit
+        ]
 
 
 viewHangman : Model -> Html Msg
@@ -119,7 +132,7 @@ viewHangman model =
     div []
         [ div [] [ viewKeyboard model.engine.pickedLetters ]
         , div [] [ viewRemainingTries (Engine.getRemainingTries model.engine) ]
-        , div [] [ viewWord model ]
+        , div [] [ viewWord model.engine ]
         , div [] [ viewResult model.engine ]
         ]
 
@@ -145,14 +158,14 @@ viewRemainingTries remainingTries =
     div [] [ text (String.fromInt remainingTries) ]
 
 
-viewWord : Model -> Html msg
-viewWord model =
+viewWord : Engine.Model -> Html msg
+viewWord engine =
     let
         toSpan : Char -> Html msg
         toSpan letter =
             span [] [ charToTextNode letter ]
     in
-    div [] (List.map toSpan (Engine.getWordRepr '_' model.engine))
+    div [] (List.map toSpan <| Engine.getWordRepr '_' <| engine)
 
 
 viewResult : Engine.Model -> Html msg
@@ -172,6 +185,38 @@ viewResult engine =
     div [] [ text message ]
 
 
+
+-- UTILS
+
+
+charSetFromRange : Char -> Char -> Set Char
+charSetFromRange head tail =
+    tail
+        |> Char.toCode
+        >> List.range (Char.toCode head)
+        >> List.map Char.fromCode
+        >> Set.fromList
+
+
 charToTextNode : Char -> Html msg
 charToTextNode char =
     text (String.fromChar char)
+
+
+fetchRandomWord : Cmd Msg
+fetchRandomWord =
+    Http.get { url = randomWordUrl, expect = Http.expectJson GotRandomWord (D.list D.string) }
+
+
+
+-- MAIN
+
+
+main : Program () Model Msg
+main =
+    Browser.element
+        { init = \_ -> ( initialModel, Cmd.none )
+        , view = view
+        , update = update
+        , subscriptions = \_ -> Sub.none
+        }
