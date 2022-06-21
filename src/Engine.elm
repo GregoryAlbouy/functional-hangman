@@ -1,26 +1,26 @@
-module Engine exposing (Model, empty, getRemainingTries, getWordRepr, init, isLetterPicked, isLost, isOver, isStarted, isWon, pickLetter)
+module Engine exposing (Model, chancesLeft, empty, init, isLetterPicked, isLost, isOver, isStarted, isWon, pickLetter, wordRepr)
 
 import Set exposing (Set)
 
 
 type alias Model =
-    { wordToGuess : Maybe (List Char)
+    { word : Maybe (List Char)
     , pickedLetters : Set Char
-    , maxTries : Int
+    , chances : Int
     }
 
 
 empty : Model
 empty =
-    { wordToGuess = Nothing
+    { word = Nothing
     , pickedLetters = Set.empty
-    , maxTries = 0
+    , chances = 0
     }
 
 
 isStarted : Model -> Bool
 isStarted model =
-    case model.wordToGuess of
+    case model.word of
         Just _ ->
             True
 
@@ -35,12 +35,12 @@ isWon model =
         isLetterFound letter =
             isLetterPicked letter model
     in
-    isStarted model && List.all isLetterFound (Maybe.withDefault [] model.wordToGuess)
+    isStarted model && List.all isLetterFound (Maybe.withDefault [] model.word)
 
 
 isLost : Model -> Bool
 isLost model =
-    isStarted model && getRemainingTries model == 0
+    isStarted model && chancesLeft model == 0
 
 
 isOver : Model -> Bool
@@ -48,11 +48,11 @@ isOver model =
     isWon model || isLost model
 
 
-init : { wordToGuess : String, maxTries : Int } -> Model
-init { wordToGuess, maxTries } =
-    { wordToGuess = Just (List.map Char.toLower (String.toList wordToGuess))
+init : String -> Int -> Model
+init wordToGuess chances =
+    { word = wordToGuess |> String.toList >> List.map Char.toLower >> Just
     , pickedLetters = Set.empty
-    , maxTries = maxTries
+    , chances = chances
     }
 
 
@@ -72,11 +72,11 @@ isLetterPicked letter model =
 
 isLetterMatch : Char -> Model -> Bool
 isLetterMatch letter model =
-    List.member letter (Maybe.withDefault [] model.wordToGuess)
+    List.member letter (Maybe.withDefault [] model.word)
 
 
-getWordRepr : Char -> Model -> List Char
-getWordRepr emptyRepr model =
+wordRepr : Char -> Model -> List Char
+wordRepr emptyRepr model =
     let
         hideUnpicked : Char -> Char
         hideUnpicked letter =
@@ -90,11 +90,11 @@ getWordRepr emptyRepr model =
         showFoundLetters letter =
             hideUnpicked letter
     in
-    List.map showFoundLetters (Maybe.withDefault [] model.wordToGuess)
+    List.map showFoundLetters (Maybe.withDefault [] model.word)
 
 
-getRemainingTries : Model -> Int
-getRemainingTries model =
+chancesLeft : Model -> Int
+chancesLeft model =
     Set.foldl
         (\letter remainingTries ->
             if isLetterMatch letter model then
@@ -103,17 +103,17 @@ getRemainingTries model =
             else
                 remainingTries - 1
         )
-        model.maxTries
+        model.chances
         model.pickedLetters
 
 
 
--- getRemainingTries : Model -> Int
--- getRemainingTries model =
+-- chancesLeft : Model -> Int
+-- chancesLeft model =
 --     let
 --         substractToMaxTries : Int -> Int
 --         substractToMaxTries n =
---             model.maxTries - n
+--             model.chances - n
 --         isUnmatched : Char -> Bool
 --         isUnmatched letter =
 --             not (isLetterMatch letter model)

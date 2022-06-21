@@ -1,6 +1,6 @@
 module EngineTests exposing (..)
 
-import Engine exposing (Model, getRemainingTries, getWordRepr, init, isLetterPicked, isLost, isOver, isStarted, isWon, pickLetter)
+import Engine exposing (Model, chancesLeft, init, isLetterPicked, isLost, isOver, isStarted, isWon, pickLetter, wordRepr)
 import Expect
 import Test exposing (..)
 
@@ -97,16 +97,15 @@ testPickLetter : Test
 testPickLetter =
     let
         run c =
-            test c.name
-                (\_ ->
+            test c.name <|
+                \_ ->
                     c.exp
                         (c.model
                             |> pickLetter c.pickedLetter
                             |> isLetterPicked c.pickedLetter
                         )
-                )
     in
-    describe "pickLetter"
+    describe "pickLetter" <|
         ([ { name = "good pick adds picked letter"
            , model = initModel
            , pickedLetter = 'l'
@@ -155,7 +154,7 @@ testGetRemainingTries =
       , exp = Expect.equal 0
       }
     ]
-        |> runTestCases "getRemainingTries" getRemainingTries
+        |> runTestCases "getRemainingTries" chancesLeft
 
 
 testGetWordRepr : Test
@@ -181,12 +180,12 @@ testGetWordRepr =
       , exp = Expect.equalLists []
       }
     ]
-        |> runTestCases "getWordRepr" (getWordRepr '_')
+        |> runTestCases "getWordRepr" (wordRepr '_')
 
 
 initModel : Model
 initModel =
-    init { wordToGuess = "hello", maxTries = 3 }
+    init "hello" 3
 
 
 lostModel : Model

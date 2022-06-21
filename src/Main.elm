@@ -37,8 +37,8 @@ alphabet =
     charSetFromRange 'a' 'z'
 
 
-maxTries : Int
-maxTries =
+chances : Int
+chances =
     10
 
 
@@ -66,7 +66,7 @@ update msg model =
         GotRandomWord (Ok list) ->
             case List.head list of
                 Just word ->
-                    ( { model | engine = Engine.init { wordToGuess = word, maxTries = maxTries } }
+                    ( { model | engine = Engine.init word chances }
                     , Cmd.none
                     )
 
@@ -131,7 +131,7 @@ viewHangman : Model -> Html Msg
 viewHangman model =
     div []
         [ div [] [ viewKeyboard model.engine.pickedLetters ]
-        , div [] [ viewRemainingTries (Engine.getRemainingTries model.engine) ]
+        , div [] [ viewRemainingTries (Engine.chancesLeft model.engine) ]
         , div [] [ viewWord model.engine ]
         , div [] [ viewResult model.engine ]
         ]
@@ -165,7 +165,7 @@ viewWord engine =
         toSpan letter =
             span [] [ charToTextNode letter ]
     in
-    div [] (List.map toSpan <| Engine.getWordRepr '_' <| engine)
+    div [] (List.map toSpan <| Engine.wordRepr '_' <| engine)
 
 
 viewResult : Engine.Model -> Html msg
