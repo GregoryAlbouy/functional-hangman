@@ -1,6 +1,6 @@
 module EngineTests exposing (..)
 
-import Engine exposing (Model, chancesLeft, init, isLetterPicked, isLost, isOver, isStarted, isWon, pickLetter, wordRepr)
+import Engine exposing (End(..), Model, State(..), chancesLeft, init, isLetterPicked, isLost, isOver, isStarted, isWon, pickLetter, state, wordRepr)
 import Expect
 import Test exposing (..)
 
@@ -33,6 +33,28 @@ wonModel =
 
 
 -- TESTS
+
+
+testState : Test
+testState =
+    [ { name = "empty -> NotStarted"
+      , model = Engine.empty
+      , exp = Expect.equal NotStarted
+      }
+    , { name = "init -> Running"
+      , model = initModel
+      , exp = Expect.equal Running
+      }
+    , { name = "won -> Ended Victory"
+      , model = wonModel
+      , exp = Expect.equal (Ended Victory)
+      }
+    , { name = "lost -> Ended Defeat"
+      , model = lostModel
+      , exp = Expect.equal (Ended Defeat)
+      }
+    ]
+        |> runTestCases "testState" state
 
 
 testIsStarted : Test
