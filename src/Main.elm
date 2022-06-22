@@ -61,6 +61,11 @@ type Msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    let
+        noop : ( Model, Cmd Msg )
+        noop =
+            ( model, Cmd.none )
+    in
     case msg of
         Start ->
             ( model, fetchRandomWord )
@@ -73,18 +78,22 @@ update msg model =
                     )
 
                 Nothing ->
-                    ( model, Cmd.none )
+                    noop
 
         GotRandomWord (Err error) ->
             ( { model | error = Just error }, Cmd.none )
 
         Pick letter ->
-            ( { model | engine = Engine.pickLetter letter model.engine }
-            , Cmd.none
-            )
+            if Set.member letter alphabet then
+                ( { model | engine = Engine.pickLetter letter model.engine }
+                , Cmd.none
+                )
+
+            else
+                noop
 
         Noop ->
-            ( model, Cmd.none )
+            noop
 
 
 
