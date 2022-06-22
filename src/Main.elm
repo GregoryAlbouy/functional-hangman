@@ -3,9 +3,9 @@ module Main exposing (main)
 import Browser
 import Browser.Events
 import Engine exposing (End(..), State(..))
-import Html exposing (Html, button, div, p, span, text)
-import Html.Attributes exposing (disabled, style)
-import Html.Events exposing (onClick)
+import Html exposing (Html, button, div, h2, h3, input, p, span, text)
+import Html.Attributes exposing (class, disabled, start, style, type_, value)
+import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as D
 import Platform.Cmd exposing (Cmd)
@@ -18,6 +18,7 @@ import Set exposing (Set)
 
 type alias Model =
     { engine : Engine.Model
+    , wordInput : String
     , error : Maybe Http.Error
     }
 
@@ -25,6 +26,7 @@ type alias Model =
 initialModel : Model
 initialModel =
     { engine = Engine.empty
+    , wordInput = ""
     , error = Nothing
     }
 
@@ -53,9 +55,11 @@ randomWordUrl =
 
 
 type Msg
-    = Start
+    = FetchRandomWord
     | GotRandomWord (Result Http.Error (List String))
+    | GotCustomWord String
     | Pick Char
+    | SetCustomWord String
     | Noop
 
 
@@ -65,23 +69,41 @@ update msg model =
         noop : ( Model, Cmd Msg )
         noop =
             ( model, Cmd.none )
+
+        isValidLetter : Char -> Bool
+        isValidLetter letter =
+            Set.member letter alphabet
+
+        startGame : String -> ( Model, Cmd Msg )
+        startGame word =
+            ( { model | engine = Engine.init word chances }
+            , Cmd.none
+            )
     in
     case msg of
-        Start ->
+        FetchRandomWord ->
             ( model, fetchRandomWord )
+
+        SetCustomWord word ->
+            if List.all isValidLetter (String.toList word) then
+                ( { model | wordInput = word }, Cmd.none )
+
+            else
+                noop
 
         GotRandomWord (Ok list) ->
             case List.head list of
                 Just word ->
-                    ( { model | engine = Engine.init word chances }
-                    , Cmd.none
-                    )
+                    startGame word
 
                 Nothing ->
                     noop
 
         GotRandomWord (Err error) ->
             ( { model | error = Just error }, Cmd.none )
+
+        GotCustomWord word ->
+            startGame word
 
         Pick letter ->
             if Set.member letter alphabet then
@@ -131,52 +153,68 @@ toKey input =
 
 view : Model -> Html Msg
 view model =
-    case model.error of
-        Just error ->
-            viewError error
+    (case model.error of
+        Just _ ->
+            [ viewStartOverlay model.error model.wordInput
+            , viewHangman model
+            ]
 
         Nothing ->
             case Engine.state model.engine of
                 NotStarted ->
-                    viewInit
+                    [ viewStartOverlay model.error model.wordInput
+                    , viewHangman model
+                    ]
 
                 _ ->
-                    viewHangman model
+                    [ viewHangman model ]
+    )
+        |> div [ class "hangman" ]
 
 
-viewInit : Html Msg
-viewInit =
-    viewStartButton "Start"
+viewStartOverlay : Maybe Http.Error -> String -> Html Msg
+viewStartOverlay error wordInput =
+    div [ class "start-overlay" ]
+        [ div [ class "form" ]
+            [ h2 [] [ text "Start new game" ]
+            , h3 [] [ text "2 players" ]
+            , input [ type_ "text", onInput SetCustomWord, value wordInput ] []
+            , button [ onClick (GotCustomWord wordInput) ] [ text "Ready!" ]
+            , h3 [] [ text "1 player" ]
+            , button [ onClick FetchRandomWord ] [ text "Use random word" ]
+            , viewError error
+            ]
+        ]
 
 
 viewStartButton : String -> Html Msg
 viewStartButton content =
-    button [ onClick Start ] [ text content ]
+    button [ onClick FetchRandomWord ] [ text content ]
 
 
-viewError : Http.Error -> Html Msg
+viewError : Maybe Http.Error -> Html Msg
 viewError error =
     let
         message =
             case error of
-                Http.BadStatus code ->
+                Just (Http.BadStatus code) ->
                     "Bad status: " ++ String.fromInt code
 
-                _ ->
+                Just _ ->
                     "Unhandled error"
+
+                Nothing ->
+                    ""
     in
-    div []
-        [ p [ style "color" "red" ] [ text message ]
-        , viewInit
-        ]
+    div [] [ p [ style "color" "red" ] [ text message ] ]
 
 
 viewHangman : Model -> Html Msg
 viewHangman model =
-    div []
-        [ div [] [ viewKeyboard model.engine.pickedLetters ]
-        , div [] [ viewRemainingTries (Engine.chancesLeft model.engine) ]
+    div [ class "main-container" ]
+        [ div [] [ viewChancesLeft (Engine.chancesLeft model.engine) ]
         , div [] [ viewWord model.engine ]
+        , div [] [ viewKeyboard model.engine.pickedLetters ]
         , div [] [ viewResult model.engine ]
         ]
 
@@ -191,15 +229,34 @@ viewKeyboard pickedLetters =
         toButton : Char -> Html Msg
         toButton letter =
             button
-                [ onClick (Pick letter), disabled (isPicked letter) ]
+                [ onClick (Pick letter)
+                , class "letter"
+                , disabled (isPicked letter)
+                ]
                 [ charToTextNode letter ]
     in
-    div [] (List.map toButton (Set.toList alphabet))
+    div [ class "keyboard" ] (List.map toButton (Set.toList alphabet))
 
 
-viewRemainingTries : Int -> Html msg
-viewRemainingTries remainingTries =
-    div [] [ text (String.fromInt remainingTries) ]
+viewChancesLeft : Int -> Html msg
+viewChancesLeft chancesLeft =
+    div [ class "chances" ] [ viewChancesLeftBar chancesLeft ]
+
+
+viewChancesLeftBar : Int -> Html msg
+viewChancesLeftBar chancesLeft =
+    let
+        pct =
+            (10 - chancesLeft) * 10
+    in
+    div [ class "container" ]
+        [ div
+            [ class "bar"
+            , style "transform" ("translateX(-" ++ String.fromInt pct ++ "%)")
+            , style "background-color" ("hsl(" ++ String.fromInt (176 + (10 - chancesLeft) * 18) ++ ", 100%, 50%)")
+            ]
+            []
+        ]
 
 
 viewWord : Engine.Model -> Html msg
@@ -207,12 +264,12 @@ viewWord engine =
     let
         toSpan : Char -> Html msg
         toSpan letter =
-            span [] [ charToTextNode letter ]
+            span [ class "letter" ] [ charToTextNode letter ]
     in
-    div [] (List.map toSpan <| Engine.wordRepr '_' <| engine)
+    div [ class "word" ] (List.map toSpan <| Engine.wordRepr '_' <| engine)
 
 
-viewResult : Engine.Model -> Html msg
+viewResult : Engine.Model -> Html Msg
 viewResult engine =
     let
         message : String
@@ -227,7 +284,7 @@ viewResult engine =
                 _ ->
                     ""
     in
-    div [] [ text message ]
+    div [] [ text message, viewStartButton "Restart" ]
 
 
 
