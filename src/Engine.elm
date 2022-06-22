@@ -1,5 +1,6 @@
 module Engine exposing (End(..), Model, State(..), chancesLeft, empty, init, isLetterPicked, isLost, isOver, isStarted, isWon, pickLetter, state, wordRepr)
 
+import Array exposing (get)
 import Set exposing (Set)
 
 
@@ -8,6 +9,11 @@ type alias Model =
     , pickedLetters : Set Char
     , chances : Int
     }
+
+
+withPickedLetter : Char -> Model -> Model
+withPickedLetter letter model =
+    { model | pickedLetters = Set.insert letter model.pickedLetters }
 
 
 type State
@@ -28,14 +34,14 @@ state model =
             NotStarted
 
         Just _ ->
-            if not (isOver model) then
-                Running
-
-            else if isWon model then
+            if List.all (flip isLetterPicked model) (unwrapWord model.word) then
                 Ended Victory
 
-            else
+            else if chancesLeft model == 0 then
                 Ended Defeat
+
+            else
+                Running
 
 
 empty : Model
@@ -48,32 +54,27 @@ empty =
 
 isStarted : Model -> Bool
 isStarted model =
-    case model.word of
-        Just _ ->
-            True
-
-        Nothing ->
-            False
+    not (state model == NotStarted)
 
 
 isWon : Model -> Bool
 isWon model =
-    let
-        isLetterFound : Char -> Bool
-        isLetterFound letter =
-            isLetterPicked letter model
-    in
-    isStarted model && List.all isLetterFound (Maybe.withDefault [] model.word)
+    state model == Ended Victory
 
 
 isLost : Model -> Bool
 isLost model =
-    isStarted model && chancesLeft model == 0
+    state model == Ended Defeat
 
 
 isOver : Model -> Bool
 isOver model =
-    isWon model || isLost model
+    case state model of
+        Ended _ ->
+            True
+
+        _ ->
+            False
 
 
 init : String -> Int -> Model
@@ -86,11 +87,12 @@ init wordToGuess chances =
 
 pickLetter : Char -> Model -> Model
 pickLetter letter model =
-    if isOver model || isLetterPicked letter model then
-        model
+    case state model of
+        Running ->
+            withPickedLetter letter model
 
-    else
-        { model | pickedLetters = Set.insert letter model.pickedLetters }
+        _ ->
+            model
 
 
 isLetterPicked : Char -> Model -> Bool
@@ -106,9 +108,13 @@ isLetterMatch letter model =
 wordRepr : Char -> Model -> List Char
 wordRepr emptyRepr model =
     let
+        word : List Char
+        word =
+            Maybe.withDefault [] model.word
+
         hideUnpicked : Char -> Char
         hideUnpicked letter =
-            if isLetterPicked letter model || isOver model then
+            if isLetterPicked letter model then
                 letter
 
             else
@@ -118,7 +124,12 @@ wordRepr emptyRepr model =
         showFoundLetters letter =
             hideUnpicked letter
     in
-    List.map showFoundLetters (Maybe.withDefault [] model.word)
+    case state model of
+        Running ->
+            List.map showFoundLetters word
+
+        _ ->
+            word
 
 
 chancesLeft : Model -> Int
@@ -147,3 +158,13 @@ chancesLeft model =
 --             not (isLetterMatch letter model)
 --     in
 --     substractToMaxTries <| Set.size <| Set.filter isUnmatched <| model.pickedLetters
+
+
+flip : (a -> b -> c) -> b -> a -> c
+flip fn b a =
+    fn a b
+
+
+unwrapWord : Maybe (List Char) -> List Char
+unwrapWord maybeWord =
+    Maybe.withDefault [] maybeWord
