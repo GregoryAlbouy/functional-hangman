@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Browser
+import Browser.Events
 import Engine exposing (End(..), State(..))
 import Html exposing (Html, button, div, p, span, text)
 import Html.Attributes exposing (disabled, style)
@@ -55,6 +56,7 @@ type Msg
     = Start
     | GotRandomWord (Result Http.Error (List String))
     | Pick Char
+    | Noop
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -80,6 +82,38 @@ update msg model =
             ( { model | engine = Engine.pickLetter letter model.engine }
             , Cmd.none
             )
+
+        Noop ->
+            ( model, Cmd.none )
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    listenKeyboardEvents
+
+
+listenKeyboardEvents : Sub Msg
+listenKeyboardEvents =
+    Browser.Events.onKeyUp decodeKey
+
+
+decodeKey : D.Decoder Msg
+decodeKey =
+    D.map toKey (D.field "key" D.string)
+
+
+toKey : String -> Msg
+toKey input =
+    case String.uncons input of
+        Just ( char, "" ) ->
+            Pick char
+
+        _ ->
+            Noop
 
 
 
@@ -220,5 +254,5 @@ main =
         { init = \_ -> ( initialModel, Cmd.none )
         , view = view
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         }
