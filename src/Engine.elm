@@ -24,7 +24,7 @@ empty =
 
 withWord : String -> Model -> Model
 withWord word model =
-    { model | word = word |> String.toList >> List.map Char.toLower >> Just }
+    { model | word = Just (String.toList word) }
 
 
 withPickedLetter : Char -> Model -> Model
