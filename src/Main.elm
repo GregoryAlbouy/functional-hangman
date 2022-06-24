@@ -242,13 +242,13 @@ viewHangman model =
     div [ class "main-container" ]
         [ div [] [ viewWord model.engine ]
         , div [] [ viewChancesLeft (Engine.chancesLeft model.engine) ]
-        , div [] [ viewKeyboard model.engine.pickedLetters ]
+        , div [] [ viewKeyboard (Engine.isStarted model.engine) model.engine.pickedLetters ]
         , div [] [ viewResult model.engine ]
         ]
 
 
-viewKeyboard : Set Char -> Html Msg
-viewKeyboard pickedLetters =
+viewKeyboard : Bool -> Set Char -> Html Msg
+viewKeyboard isActive pickedLetters =
     let
         isPicked : Char -> Bool
         isPicked letter =
@@ -259,7 +259,7 @@ viewKeyboard pickedLetters =
             button
                 [ onClick (Pick letter)
                 , class "letter button"
-                , disabled (isPicked letter)
+                , disabled (isPicked letter || not isActive)
                 ]
                 [ charToTextNode letter ]
     in
@@ -268,22 +268,23 @@ viewKeyboard pickedLetters =
 
 viewChancesLeft : Int -> Html msg
 viewChancesLeft chancesLeft =
-    div [ class "chances" ] [ viewChancesLeftBar chancesLeft ]
-
-
-viewChancesLeftBar : Int -> Html msg
-viewChancesLeftBar chancesLeft =
     let
-        pct =
-            (10 - chancesLeft) * 10
+        ratio =
+            if chances == 0 then
+                0
+
+            else
+                toFloat (chances - chancesLeft)
+                    / toFloat chances
     in
-    div [ class "container" ]
-        [ div
-            [ class "bar"
-            , style "transform" ("translateX(-" ++ String.fromInt pct ++ "%)")
-            , style "background-color" ("hsl(356, 100%, " ++ String.fromInt (100 - (10 - chancesLeft) * 5) ++ "%)")
+    div [ class "chances" ]
+        [ div [ class "container" ]
+            [ div
+                [ class "bar"
+                , style "transform" ("scaleX(" ++ String.fromFloat ratio ++ ")")
+                ]
+                []
             ]
-            []
         ]
 
 
