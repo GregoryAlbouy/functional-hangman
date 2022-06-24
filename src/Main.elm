@@ -180,24 +180,10 @@ toKey input =
 
 view : Model -> Html Msg
 view model =
-    (case model.error of
-        Just _ ->
-            [ viewStartOverlay model.error model.wordInput model.isOverlayOpen
-            , viewHangman model
-            ]
-
-        Nothing ->
-            [ viewStartOverlay model.error model.wordInput model.isOverlayOpen
-            , viewHangman model
-            ]
-     -- if model.isOverlayOpen then
-     --     [ viewStartOverlay model.error model.wordInput
-     --     , viewHangman model
-     --     ]
-     -- else
-     --     [ viewHangman model ]
-    )
-        |> div [ class "hangman" ]
+    div [ class "hangman" ]
+        [ viewStartOverlay model.error model.wordInput model.isOverlayOpen
+        , viewHangman model
+        ]
 
 
 viewStartOverlay : Maybe Http.Error -> String -> Bool -> Html Msg
