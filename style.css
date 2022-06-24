@@ -1,0 +1,127 @@
+:root {
+  --color-primary: #00ffee; /* hsl(176, 100%, 50%) */
+  --color-secondary: #181822;
+  --color-dark: #101010;
+  --color-destructive: #ff6633; /* hsl(356, 100%, 50%) */
+  --color-text: #cccccc;
+  --color-fade: #999999;
+
+  --sans-serif: "Raleway", sans-serif;
+
+  font-size: 10px;
+}
+
+body {
+  background-color: var(--color-secondary);
+  color: var(--color-text);
+  font-family: var(--sans-serif);
+  font-size: 1.4rem;
+}
+
+button {
+  display: block;
+  background-color: var(--color-secondary);
+  outline: 1px solid var(--color-text);
+  padding: 4px;
+  color: var(--color-text);
+  border: none;
+  border-radius: 0.4em;
+  cursor: pointer;
+  transition-property: color, background-color;
+  transition-duration: 200ms;
+}
+
+button.primary {
+  --color-text: var(--color-primary);
+}
+
+button:hover:not([disabled]) {
+  background-color: var(--color-text);
+  color: var(--color-secondary);
+}
+
+button[disabled] {
+  outline: none;
+  color: var(--color-fade);
+  cursor: not-allowed;
+}
+
+.hangman .start-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  backdrop-filter: blur(0.8rem);
+}
+
+.hangman .start-overlay .form {
+  width: 32rem;
+  height: 48rem;
+  background-color: var(--color-secondary);
+  box-shadow: 0 0 8rem var(--color-dark);
+}
+
+.hangman .start-overlay input {
+  width: 100%;
+  height: 3.6rem;
+}
+
+.hangman .main-container {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  row-gap: 4rem;
+  width: 50%;
+  min-width: 400px;
+  height: 100vh;
+  margin: auto;
+}
+
+.hangman .keyboard {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 0.8rem;
+  row-gap: 0.8rem;
+}
+
+.hangman .keyboard .letter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 4.8rem;
+  height: 4.8rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.hangman .word {
+  display: flex;
+  justify-content: center;
+  font-size: 6.4rem;
+}
+
+.hangman .word > .letter:not(:last-of-type) {
+  margin-right: 0.8rem;
+}
+
+.hangman .word .letter {
+  display: block;
+  text-transform: uppercase;
+}
+
+.hangman .chances .container {
+  height: 0.2rem;
+  overflow: hidden;
+}
+
+.hangman .chances .bar {
+  height: 100%;
+  transition-property: background-color, transform;
+  transition-duration: 400ms;
+}
