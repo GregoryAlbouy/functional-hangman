@@ -43,6 +43,11 @@ withOverlay isOpen model =
     { model | isOverlayOpen = isOpen }
 
 
+withWordInput : String -> Model -> Model
+withWordInput wordInput model =
+    { model | wordInput = wordInput }
+
+
 
 -- CONSTANTS
 
@@ -90,6 +95,7 @@ update msg model =
         startGame : String -> ( Model, Cmd Msg )
         startGame word =
             ( model
+                |> withWordInput ""
                 |> withOverlay False
                 |> withEngine (Engine.init word chances)
             , Cmd.none
@@ -101,7 +107,7 @@ update msg model =
 
         SetCustomWord word ->
             if List.all isValidLetter (String.toList word) then
-                ( { model | wordInput = word }, Cmd.none )
+                ( model |> withWordInput word, Cmd.none )
 
             else
                 noop
