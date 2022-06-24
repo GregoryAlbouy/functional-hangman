@@ -33,6 +33,16 @@ initialModel =
     }
 
 
+withEngine : Engine.Model -> Model -> Model
+withEngine engine model =
+    { model | engine = engine }
+
+
+withOverlay : Bool -> Model -> Model
+withOverlay isOpen model =
+    { model | isOverlayOpen = isOpen }
+
+
 
 -- CONSTANTS
 
@@ -79,7 +89,8 @@ update msg model =
 
         startGame : String -> ( Model, Cmd Msg )
         startGame word =
-            ( { model | engine = Engine.init word chances }
+            ( model
+                |> withEngine (Engine.init word chances)
             , Cmd.none
             )
     in
@@ -110,7 +121,8 @@ update msg model =
 
         Pick letter ->
             if Set.member letter alphabet then
-                ( { model | engine = Engine.pickLetter letter model.engine }
+                ( model
+                    |> withEngine (Engine.pickLetter letter model.engine)
                 , Cmd.none
                 )
 
@@ -118,7 +130,9 @@ update msg model =
                 noop
 
         ToggleOverlay ->
-            ( { model | isOverlayOpen = not model.isOverlayOpen }, Cmd.none )
+            ( model |> withOverlay (not model.isOverlayOpen)
+            , Cmd.none
+            )
 
         Noop ->
             noop
