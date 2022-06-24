@@ -90,6 +90,7 @@ update msg model =
         startGame : String -> ( Model, Cmd Msg )
         startGame word =
             ( model
+                |> withOverlay False
                 |> withEngine (Engine.init word chances)
             , Cmd.none
             )
