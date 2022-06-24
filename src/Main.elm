@@ -4,7 +4,7 @@ import Browser
 import Browser.Events
 import Engine exposing (End(..), State(..))
 import Html exposing (Html, button, div, h2, h3, input, p, span, text)
-import Html.Attributes exposing (class, disabled, start, style, type_, value)
+import Html.Attributes exposing (class, disabled, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as D
@@ -60,6 +60,7 @@ type Msg
     | GotCustomWord String
     | Pick Char
     | SetCustomWord String
+    | Reset
     | Noop
 
 
@@ -113,6 +114,9 @@ update msg model =
 
             else
                 noop
+
+        Reset ->
+            ( initialModel, Cmd.none )
 
         Noop ->
             noop
@@ -185,11 +189,6 @@ viewStartOverlay error wordInput =
             , viewError error
             ]
         ]
-
-
-viewStartButton : String -> Html Msg
-viewStartButton content =
-    button [ onClick FetchRandomWord ] [ text content ]
 
 
 viewError : Maybe Http.Error -> Html Msg
@@ -284,7 +283,10 @@ viewResult engine =
                 _ ->
                     ""
     in
-    div [] [ text message, viewStartButton "Restart" ]
+    div []
+        [ text message
+        , button [ onClick Reset ] [ text "New game" ]
+        ]
 
 
 
