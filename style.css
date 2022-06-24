@@ -25,10 +25,9 @@ button {
 .button {
   display: block;
   background-color: var(--color-secondary);
-  outline: 1px solid var(--color-text);
   padding: 4px;
   color: var(--color-text);
-  border: none;
+  border: 1px solid var(--color-text);
   border-radius: 0.4em;
   transition-property: color, background-color;
   transition-duration: 200ms;
@@ -44,7 +43,7 @@ button {
 }
 
 .button[disabled] {
-  outline: none;
+  border: none;
   color: var(--color-fade);
   cursor: not-allowed;
 }
@@ -58,7 +57,7 @@ button {
   left: 0;
   width: 100%;
   height: 100vh;
-  backdrop-filter: blur(0.8rem);
+  background-color: rgba(0, 0, 0, 0.4);
   z-index: 100;
 }
 
@@ -78,7 +77,6 @@ button {
   position: absolute;
   top: 16px;
   right: 16px;
-  outline: none;
   border: none;
   font-size: 18px;
   background: inherit;
@@ -90,7 +88,6 @@ button {
   height: 48rem;
   overflow: hidden;
   border-radius: 16px;
-  background-color: var(--color-secondary);
   box-shadow: 0 0 8rem var(--color-dark);
 }
 
@@ -129,6 +126,10 @@ button {
   text-transform: uppercase;
 }
 
+.hangman .keyboard .letter:not([disabled]) {
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
 .hangman .word {
   display: flex;
   justify-content: center;
@@ -153,4 +154,50 @@ button {
   height: 100%;
   transition-property: background-color, transform;
   transition-duration: 400ms;
+}
+
+@keyframes open-start-overlay {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0);
+    filter: blur(1rem);
+    visibility: hidden;
+  }
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(1rem);
+    filter: blur(0);
+    visibility: visible;
+  }
+}
+
+@keyframes close-start-overlay {
+  0% {
+    opacity: 1;
+    backdrop-filter: blur(1rem);
+    filter: blur(0);
+    visibility: visible;
+  }
+  100% {
+    opacity: 0;
+    backdrop-filter: blur(0);
+    filter: blur(1rem);
+    visibility: hidden;
+  }
+}
+
+.start-overlay {
+  animation-duration: 200ms;
+  animation-delay: 0ms;
+  animation-direction: normal;
+  animation-fill-mode: both;
+  animation-timing-function: linear;
+  /* will-change: opacity, filter, backdrop-filter; */
+}
+
+.start-overlay.open {
+  animation-name: open-start-overlay;
+}
+.start-overlay:not(.open) {
+  animation-name: close-start-overlay;
 }
