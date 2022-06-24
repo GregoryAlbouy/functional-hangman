@@ -3,7 +3,7 @@ module Main exposing (main)
 import Browser
 import Browser.Events
 import Engine exposing (End(..), State(..))
-import Html exposing (Html, button, div, h2, h3, input, p, span, text)
+import Html exposing (Html, button, div, h2, h3, header, input, p, span, text)
 import Html.Attributes exposing (class, disabled, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
@@ -20,6 +20,7 @@ type alias Model =
     { engine : Engine.Model
     , wordInput : String
     , error : Maybe Http.Error
+    , isOverlayOpen : Bool
     }
 
 
@@ -28,6 +29,7 @@ initialModel =
     { engine = Engine.empty
     , wordInput = ""
     , error = Nothing
+    , isOverlayOpen = True
     }
 
 
@@ -60,7 +62,7 @@ type Msg
     | GotCustomWord String
     | Pick Char
     | SetCustomWord String
-    | Reset
+    | ToggleOverlay
     | Noop
 
 
@@ -115,8 +117,8 @@ update msg model =
             else
                 noop
 
-        Reset ->
-            ( initialModel, Cmd.none )
+        ToggleOverlay ->
+            ( { model | isOverlayOpen = not model.isOverlayOpen }, Cmd.none )
 
         Noop ->
             noop
@@ -164,14 +166,13 @@ view model =
             ]
 
         Nothing ->
-            case Engine.state model.engine of
-                NotStarted ->
-                    [ viewStartOverlay model.error model.wordInput
-                    , viewHangman model
-                    ]
+            if model.isOverlayOpen then
+                [ viewStartOverlay model.error model.wordInput
+                , viewHangman model
+                ]
 
-                _ ->
-                    [ viewHangman model ]
+            else
+                [ viewHangman model ]
     )
         |> div [ class "hangman" ]
 
@@ -180,12 +181,15 @@ viewStartOverlay : Maybe Http.Error -> String -> Html Msg
 viewStartOverlay error wordInput =
     div [ class "start-overlay" ]
         [ div [ class "form" ]
-            [ h2 [] [ text "Start new game" ]
+            [ header [ class "overlay-header" ]
+                [ h2 [] [ text "Start new game" ]
+                , button [ onClick ToggleOverlay, class "close-button" ] [ text "X" ]
+                ]
             , h3 [] [ text "2 players" ]
             , input [ type_ "text", onInput SetCustomWord, value wordInput ] []
-            , button [ onClick (GotCustomWord wordInput) ] [ text "Ready!" ]
+            , button [ onClick (GotCustomWord wordInput), class "button" ] [ text "Ready!" ]
             , h3 [] [ text "1 player" ]
-            , button [ onClick FetchRandomWord ] [ text "Use random word" ]
+            , button [ onClick FetchRandomWord, class "button" ] [ text "Use random word" ]
             , viewError error
             ]
         ]
@@ -211,8 +215,8 @@ viewError error =
 viewHangman : Model -> Html Msg
 viewHangman model =
     div [ class "main-container" ]
-        [ div [] [ viewChancesLeft (Engine.chancesLeft model.engine) ]
-        , div [] [ viewWord model.engine ]
+        [ div [] [ viewWord model.engine ]
+        , div [] [ viewChancesLeft (Engine.chancesLeft model.engine) ]
         , div [] [ viewKeyboard model.engine.pickedLetters ]
         , div [] [ viewResult model.engine ]
         ]
@@ -229,7 +233,7 @@ viewKeyboard pickedLetters =
         toButton letter =
             button
                 [ onClick (Pick letter)
-                , class "letter"
+                , class "letter button"
                 , disabled (isPicked letter)
                 ]
                 [ charToTextNode letter ]
@@ -285,7 +289,7 @@ viewResult engine =
     in
     div []
         [ text message
-        , button [ onClick Reset ] [ text "New game" ]
+        , button [ onClick ToggleOverlay, class "button" ] [ text "New game" ]
         ]
 
 

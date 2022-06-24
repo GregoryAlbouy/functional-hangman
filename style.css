@@ -3,7 +3,7 @@
   --color-secondary: #181822;
   --color-dark: #101010;
   --color-destructive: #ff6633; /* hsl(356, 100%, 50%) */
-  --color-text: #cccccc;
+  --color-text: #dddddd;
   --color-fade: #999999;
 
   --sans-serif: "Raleway", sans-serif;
@@ -19,6 +19,10 @@ body {
 }
 
 button {
+  cursor: pointer;
+}
+
+.button {
   display: block;
   background-color: var(--color-secondary);
   outline: 1px solid var(--color-text);
@@ -26,21 +30,20 @@ button {
   color: var(--color-text);
   border: none;
   border-radius: 0.4em;
-  cursor: pointer;
   transition-property: color, background-color;
   transition-duration: 200ms;
 }
 
-button.primary {
+.button.primary {
   --color-text: var(--color-primary);
 }
 
-button:hover:not([disabled]) {
+.button:hover:not([disabled]) {
   background-color: var(--color-text);
   color: var(--color-secondary);
 }
 
-button[disabled] {
+.button[disabled] {
   outline: none;
   color: var(--color-fade);
   cursor: not-allowed;
@@ -56,11 +59,37 @@ button[disabled] {
   width: 100%;
   height: 100vh;
   backdrop-filter: blur(0.8rem);
+  z-index: 100;
+}
+
+.hangman .start-overlay .overlay-header {
+  position: relative;
+  padding: 16px;
+  background: var(--color-text);
+  color: var(--color-secondary);
+}
+
+.hangman .start-overlay .overlay-header h2 {
+  margin: 0;
+  text-align: center;
+}
+
+.hangman .start-overlay .overlay-header .close-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  outline: none;
+  border: none;
+  font-size: 18px;
+  background: inherit;
+  color: inherit;
 }
 
 .hangman .start-overlay .form {
   width: 32rem;
   height: 48rem;
+  overflow: hidden;
+  border-radius: 16px;
   background-color: var(--color-secondary);
   box-shadow: 0 0 8rem var(--color-dark);
 }
