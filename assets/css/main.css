@@ -146,16 +146,6 @@ input {
   text-align: center;
 }
 
-.menu-overlay .close-button {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  border: none;
-  font-size: 18px;
-  background: inherit;
-  color: inherit;
-}
-
 .menu-overlay .word-input-container {
   display: flex;
   width: 100%;

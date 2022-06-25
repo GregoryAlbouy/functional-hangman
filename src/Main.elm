@@ -213,10 +213,7 @@ viewMenu : Maybe Http.Error -> String -> ToggleState -> Html Msg
 viewMenu error wordInput state =
     div [ classList [ ( "menu-overlay", True ), ( "open", state == On ) ] ]
         [ div [ class "form" ]
-            [ header [ class "overlay-header" ]
-                [ h2 [] [ text "Start new game" ]
-                , button [ onClick (ToggleMenu Off), class "close-button" ] [ text "X" ]
-                ]
+            [ header [ class "overlay-header" ] [ h2 [] [ text "Start new game" ] ]
             , div [ class "overlay-body" ]
                 [ h3 [ class "form-title" ] [ text "2 players" ]
                 , viewWordInput wordInput
