@@ -91,7 +91,11 @@ update msg model =
 
         isValidLetter : Char -> Bool
         isValidLetter letter =
-            Set.member letter alphabet
+            Set.member (Char.toLower letter) alphabet
+
+        isValidWord : String -> Bool
+        isValidWord wordInput =
+            List.all isValidLetter (String.toList wordInput)
 
         startGame : String -> ( Model, Cmd Msg )
         startGame word =
@@ -106,9 +110,9 @@ update msg model =
         FetchRandomWord ->
             ( model, fetchRandomWord )
 
-        SetCustomWord word ->
-            if List.all isValidLetter (String.toList word) then
-                ( model |> withWordInput word, Cmd.none )
+        SetCustomWord input ->
+            if isValidWord input then
+                ( model |> withWordInput (String.toLower input), Cmd.none )
 
             else
                 noop
@@ -128,9 +132,8 @@ update msg model =
             startGame word
 
         Pick letter ->
-            if Set.member letter alphabet then
-                ( model
-                    |> withEngine (Engine.pickLetter letter model.engine)
+            if isValidLetter letter then
+                ( model |> withEngine (Engine.pickLetter (Char.toLower letter) model.engine)
                 , Cmd.none
                 )
 
