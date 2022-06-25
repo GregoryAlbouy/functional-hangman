@@ -157,6 +157,7 @@ button {
 }
 
 .game-container {
+  position: relative;
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -165,6 +166,64 @@ button {
   min-width: 400px;
   height: 100vh;
   margin: auto;
+}
+
+.burger-button {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 6.4rem;
+  height: 6.4rem;
+  background-color: var(--color-text);
+  border-bottom-right-radius: 0.4rem;
+  color: var(--color-secondary);
+  cursor: pointer;
+  z-index: 1000;
+}
+
+.burger-button-bar {
+  position: relative;
+}
+
+.burger-button-bar,
+.burger-button-bar::before,
+.burger-button-bar::after {
+  width: 3.2rem;
+  height: 0.2rem;
+  border-radius: 1px;
+  background-color: currentColor;
+}
+
+.burger-button-bar::before,
+.burger-button-bar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  transition: transform 100ms;
+  visibility: visible;
+}
+
+.burger-button-bar::before {
+  transform: translateY(-0.8rem);
+}
+
+.burger-button-bar::after {
+  transform: translateY(0.8rem);
+}
+
+.burger-button.open .burger-button-bar {
+  visibility: hidden;
+}
+
+.burger-button.open .burger-button-bar::before {
+  transform: rotateZ(-45deg);
+}
+
+.burger-button.open .burger-button-bar::after {
+  transform: rotateZ(45deg);
 }
 
 .keyboard {

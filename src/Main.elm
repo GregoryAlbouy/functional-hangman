@@ -186,8 +186,19 @@ toKey input =
 view : Model -> Html Msg
 view model =
     div [ class "hangman" ]
-        [ viewMenu model.error model.wordInput model.menu
+        [ viewMenuButton model.menu
+        , viewMenu model.error model.wordInput model.menu
         , viewGame model
+        ]
+
+
+viewMenuButton : ToggleState -> Html Msg
+viewMenuButton state =
+    div
+        [ onClick (toggleMenu state)
+        , classList [ ( "burger-button", True ), ( "open", state == On ) ]
+        ]
+        [ div [ class "burger-button-bar" ] []
         ]
 
 
@@ -238,7 +249,6 @@ viewGame model =
         [ div [] [ viewWord model.engine ]
         , div [] [ viewChancesLeft isStarted (Engine.chancesLeft model.engine) ]
         , div [] [ viewKeyboard isStarted model.engine.pickedLetters ]
-        , div [] [ viewButton (ToggleMenu On) "New game" ]
         ]
 
 
@@ -319,6 +329,16 @@ charToTextNode char =
 fetchRandomWord : Cmd Msg
 fetchRandomWord =
     Http.get { url = randomWordUrl, expect = Http.expectJson GotRandomWord (D.list D.string) }
+
+
+toggleMenu : ToggleState -> Msg
+toggleMenu state =
+    case state of
+        On ->
+            ToggleMenu Off
+
+        Off ->
+            ToggleMenu On
 
 
 
