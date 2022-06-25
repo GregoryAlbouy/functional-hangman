@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import Browser
 import Browser.Events
+import Constants
 import Engine exposing (End(..), State(..))
 import Html exposing (Html, a, button, div, h2, h3, header, img, input, p, span, text)
 import Html.Attributes exposing (alt, class, classList, disabled, href, src, style, target, type_, value)
@@ -60,21 +61,6 @@ alphabet =
 chances : Int
 chances =
     10
-
-
-randomWordUrl : String
-randomWordUrl =
-    "https://random-word-api.herokuapp.com/word?lang=en"
-
-
-githubRepoUrl : String
-githubRepoUrl =
-    "https://github.com/gregoryalbouy/elm-hangman"
-
-
-imgBasePath : String
-imgBasePath =
-    "./assets/images/"
 
 
 
@@ -208,7 +194,7 @@ viewHeader menuState =
         [ viewMenuButton menuState
         , div [ class "page-title" ] [ text "The Hangman Game" ]
         , viewExtLink
-            { to = githubRepoUrl, className = "github" }
+            { to = Constants.githubRepoUrl, className = "github" }
             [ viewImg "Github" "github-logo.svg" ]
         ]
 
@@ -331,7 +317,7 @@ viewButton msg content =
 
 viewImg : String -> String -> Html msg
 viewImg name path =
-    img [ alt name, src (imgBasePath ++ path) ] []
+    img [ alt name, src (imgPath path) ] []
 
 
 viewExtLink : { className : String, to : String } -> List (Html msg) -> Html msg
@@ -359,7 +345,10 @@ charToTextNode char =
 
 fetchRandomWord : Cmd Msg
 fetchRandomWord =
-    Http.get { url = randomWordUrl, expect = Http.expectJson GotRandomWord (D.list D.string) }
+    Http.get
+        { url = Constants.randomWordUrl
+        , expect = Http.expectJson GotRandomWord (D.list D.string)
+        }
 
 
 toggleMenu : ToggleState -> Msg
@@ -370,6 +359,11 @@ toggleMenu state =
 
         Off ->
             ToggleMenu On
+
+
+imgPath : String -> String
+imgPath name =
+    Constants.imgBasePath ++ name
 
 
 
