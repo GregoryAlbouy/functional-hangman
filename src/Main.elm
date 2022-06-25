@@ -20,7 +20,7 @@ type alias Model =
     { engine : Engine.Model
     , wordInput : String
     , error : Maybe Http.Error
-    , isOverlayOpen : Bool
+    , menu : ToggleState
     }
 
 
@@ -29,7 +29,7 @@ initialModel =
     { engine = Engine.empty
     , wordInput = ""
     , error = Nothing
-    , isOverlayOpen = True
+    , menu = On
     }
 
 
@@ -38,9 +38,9 @@ withEngine engine model =
     { model | engine = engine }
 
 
-withOverlay : Bool -> Model -> Model
-withOverlay isOpen model =
-    { model | isOverlayOpen = isOpen }
+withMenu : ToggleState -> Model -> Model
+withMenu state model =
+    { model | menu = state }
 
 
 withWordInput : String -> Model -> Model
@@ -77,8 +77,13 @@ type Msg
     | GotCustomWord String
     | Pick Char
     | SetCustomWord String
-    | ToggleOverlay
+    | ToggleMenu ToggleState
     | Noop
+
+
+type ToggleState
+    = On
+    | Off
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -96,7 +101,7 @@ update msg model =
         startGame word =
             ( model
                 |> withWordInput ""
-                |> withOverlay False
+                |> withMenu Off
                 |> withEngine (Engine.init word chances)
             , Cmd.none
             )
@@ -136,8 +141,8 @@ update msg model =
             else
                 noop
 
-        ToggleOverlay ->
-            ( model |> withOverlay (not model.isOverlayOpen)
+        ToggleMenu state ->
+            ( model |> withMenu state
             , Cmd.none
             )
 
@@ -181,18 +186,18 @@ toKey input =
 view : Model -> Html Msg
 view model =
     div [ class "hangman" ]
-        [ viewMenu model.error model.wordInput model.isOverlayOpen
+        [ viewMenu model.error model.wordInput model.menu
         , viewHangman model
         ]
 
 
-viewMenu : Maybe Http.Error -> String -> Bool -> Html Msg
-viewMenu error wordInput isOpen =
-    div [ classList [ ( "menu-overlay", True ), ( "open", isOpen ) ] ]
+viewMenu : Maybe Http.Error -> String -> ToggleState -> Html Msg
+viewMenu error wordInput state =
+    div [ classList [ ( "menu-overlay", True ), ( "open", state == On ) ] ]
         [ div [ class "form" ]
             [ header [ class "overlay-header" ]
                 [ h2 [] [ text "Start new game" ]
-                , button [ onClick ToggleOverlay, class "close-button" ] [ text "X" ]
+                , button [ onClick (ToggleMenu Off), class "close-button" ] [ text "X" ]
                 ]
             , div [ class "overlay-body" ]
                 [ h3 [] [ text "2 players" ]
@@ -233,7 +238,7 @@ viewHangman model =
         [ div [] [ viewWord model.engine ]
         , div [] [ viewChancesLeft isStarted (Engine.chancesLeft model.engine) ]
         , div [] [ viewKeyboard isStarted model.engine.pickedLetters ]
-        , div [] [ viewButton ToggleOverlay "New game" ]
+        , div [] [ viewButton (ToggleMenu On) "New game" ]
         ]
 
 
