@@ -7,7 +7,7 @@
   --color-fade: #999999;
 
   --themed-box-shadow-color: rgba(255, 255, 255, 0.2);
-  --letter-box-shadow: 0 0 0.8rem var(--themed-box-shadow-color);
+  --letter-box-shadow: 0 0 1.2rem var(--themed-box-shadow-color);
 
   --sans-serif: "Raleway", sans-serif;
 
@@ -22,7 +22,7 @@
     --color-dark: #f0f0f0;
     --color-fade: #999999;
 
-    --themed-box-shadow-color: rgba(0, 0, 0, 0.2);
+    --themed-box-shadow-color: rgba(0, 0, 0, 0.25);
   }
 }
 
@@ -267,7 +267,7 @@ button {
   width: 4.8rem;
   height: 4.8rem;
   padding: 4px;
-  border: 1px solid var(--color-text);
+  border: none;
   border-radius: 0.4em;
   color: var(--color-text);
   font-size: 1.6rem;
