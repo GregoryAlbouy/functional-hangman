@@ -58,122 +58,7 @@ button {
   cursor: not-allowed;
 }
 
-.hangman .menu-overlay {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.3);
-  z-index: 100;
-}
-
-.hangman .menu-overlay .overlay-header {
-  position: relative;
-  padding: 16px;
-  background: var(--color-text);
-  color: var(--color-secondary);
-}
-
-.hangman .menu-overlay .form {
-  width: 32rem;
-  height: 48rem;
-  overflow: hidden;
-  border-radius: 16px;
-  box-shadow: 0 0 8rem var(--color-dark);
-  background-color: var(--color-secondary);
-}
-
-.hangman .menu-overlay .overlay-body {
-  padding: 0 16px;
-}
-
-.hangman .menu-overlay .overlay-header h2 {
-  margin: 0;
-  text-align: center;
-}
-
-.hangman .menu-overlay .overlay-header .close-button {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  border: none;
-  font-size: 18px;
-  background: inherit;
-  color: inherit;
-}
-
-.hangman .menu-overlay input {
-  width: 100%;
-  height: 3.6rem;
-}
-
-.hangman .main-container {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  row-gap: 4rem;
-  width: 50%;
-  min-width: 400px;
-  height: 100vh;
-  margin: auto;
-}
-
-.hangman .keyboard {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  column-gap: 0.8rem;
-  row-gap: 0.8rem;
-}
-
-.hangman .keyboard .letter {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 4.8rem;
-  height: 4.8rem;
-  font-size: 1.6rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.hangman .keyboard .letter:not([disabled]) {
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
-}
-
-.hangman .word {
-  display: flex;
-  justify-content: center;
-  font-size: 6.4rem;
-}
-
-.hangman .word > .letter:not(:last-of-type) {
-  margin-right: 0.8rem;
-}
-
-.hangman .word .letter {
-  display: block;
-  text-transform: uppercase;
-}
-
-.hangman .chances .container {
-  height: 0.2rem;
-  overflow: hidden;
-}
-
-.hangman .chances .bar {
-  height: 100%;
-  background-color: var(--color-destructive);
-  transition-property: transform;
-  transition-duration: 800ms;
-  transition-timing-function: cubic-bezier(0.6, -0.6, 0.2, 1.5);
-}
-
-@keyframes open-start-overlay {
+@keyframes open-menu-overlay {
   0% {
     opacity: 0;
     backdrop-filter: blur(0);
@@ -188,7 +73,7 @@ button {
   }
 }
 
-@keyframes close-start-overlay {
+@keyframes close-manu-overlay {
   0% {
     opacity: 1;
     backdrop-filter: blur(0.8rem);
@@ -204,6 +89,17 @@ button {
 }
 
 .menu-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 100;
+
   animation-duration: 200ms;
   animation-delay: 0ms;
   animation-direction: normal;
@@ -213,8 +109,111 @@ button {
 }
 
 .menu-overlay.open {
-  animation-name: open-start-overlay;
+  animation-name: open-menu-overlay;
 }
+
 .menu-overlay:not(.open) {
-  animation-name: close-start-overlay;
+  animation-name: close-manu-overlay;
+}
+
+.menu-overlay .overlay-header {
+  position: relative;
+  padding: 16px;
+  background: var(--color-text);
+  color: var(--color-secondary);
+}
+
+.menu-overlay .form {
+  width: 32rem;
+  height: 48rem;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 0 8rem var(--color-dark);
+  background-color: var(--color-secondary);
+}
+
+.menu-overlay .overlay-body {
+  padding: 0 16px;
+}
+
+.menu-overlay h2 {
+  margin: 0;
+  text-align: center;
+}
+
+.menu-overlay .close-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border: none;
+  font-size: 18px;
+  background: inherit;
+  color: inherit;
+}
+
+.menu-overlay input {
+  width: 100%;
+  height: 3.6rem;
+}
+
+.main-container {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  row-gap: 4rem;
+  width: 50%;
+  min-width: 400px;
+  height: 100vh;
+  margin: auto;
+}
+
+.keyboard {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 0.8rem;
+  row-gap: 0.8rem;
+}
+
+.keyboard .letter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 4.8rem;
+  height: 4.8rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.keyboard .letter:not([disabled]) {
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+.word {
+  display: flex;
+  justify-content: center;
+  font-size: 6.4rem;
+}
+
+.word > .letter:not(:last-of-type) {
+  margin-right: 0.8rem;
+}
+
+.word .letter {
+  display: block;
+  text-transform: uppercase;
+}
+
+.chances .container {
+  height: 0.2rem;
+  overflow: hidden;
+}
+
+.chances .bar {
+  height: 100%;
+  background-color: var(--color-destructive);
+  transition-property: transform;
+  transition-duration: 800ms;
+  transition-timing-function: cubic-bezier(0.6, -0.6, 0.2, 1.5);
 }
