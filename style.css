@@ -3,12 +3,22 @@
   --color-secondary: #181822;
   --color-dark: #101010;
   --color-destructive: #ff6633; /* hsl(356, 100%, 50%) */
-  --color-text: #eeeeee;
+  --color-text: #f0f0f0;
   --color-fade: #999999;
 
   --sans-serif: "Raleway", sans-serif;
 
   font-size: 10px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-primary: #181822;
+    --color-text: #101010;
+    --color-secondary: #f0f0f0;
+    --color-dark: #f0f0f0;
+    --color-fade: #999999;
+  }
 }
 
 body {
