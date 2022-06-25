@@ -3,8 +3,8 @@ module Main exposing (main)
 import Browser
 import Browser.Events
 import Engine exposing (End(..), State(..))
-import Html exposing (Html, button, div, h2, h3, header, input, p, span, text)
-import Html.Attributes exposing (class, classList, disabled, style, type_, value)
+import Html exposing (Html, a, button, div, h2, h3, header, img, input, p, span, text)
+import Html.Attributes exposing (alt, class, classList, disabled, href, src, style, target, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as D
@@ -65,6 +65,16 @@ chances =
 randomWordUrl : String
 randomWordUrl =
     "https://random-word-api.herokuapp.com/word?lang=en"
+
+
+githubRepoUrl : String
+githubRepoUrl =
+    "https://github.com/gregoryalbouy/elm-hangman"
+
+
+imgBasePath : String
+imgBasePath =
+    "./assets/images/"
 
 
 
@@ -197,6 +207,9 @@ viewHeader menuState =
     header [ class "header" ]
         [ viewMenuButton menuState
         , div [ class "page-title" ] [ text "The Hangman Game" ]
+        , viewExtLink
+            { to = githubRepoUrl, className = "github" }
+            [ viewImg "Github" "github-logo.svg" ]
         ]
 
 
@@ -314,6 +327,16 @@ viewWord engine =
 viewButton : msg -> String -> Html msg
 viewButton msg content =
     button [ onClick msg, class "button" ] [ text content ]
+
+
+viewImg : String -> String -> Html msg
+viewImg name path =
+    img [ alt name, src (imgBasePath ++ path) ] []
+
+
+viewExtLink : { className : String, to : String } -> List (Html msg) -> Html msg
+viewExtLink { className, to } content =
+    a [ class className, href to, target "_blank" ] content
 
 
 
