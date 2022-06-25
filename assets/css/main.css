@@ -39,29 +39,7 @@ button {
 }
 
 .button {
-  display: block;
-  background-color: var(--color-secondary);
-  padding: 4px;
-  color: var(--color-text);
-  border: 1px solid var(--color-text);
-  border-radius: 0.4em;
-  transition-property: color, background-color;
-  transition-duration: 200ms;
-}
-
-.button.primary {
-  --color-text: var(--color-primary);
-}
-
-.button:hover:not([disabled]) {
-  background-color: var(--color-text);
-  color: var(--color-secondary);
-}
-
-.button[disabled] {
-  border: none;
-  color: var(--color-fade);
-  cursor: not-allowed;
+  /* TODO */
 }
 
 @keyframes open-menu-overlay {
@@ -274,11 +252,6 @@ button {
   filter: brightness(10) saturate(0);
 }
 
-.github svg,
-.github path {
-  fill: #00ffee !important;
-}
-
 .keyboard {
   display: flex;
   flex-wrap: wrap;
@@ -293,13 +266,31 @@ button {
   align-items: center;
   width: 4.8rem;
   height: 4.8rem;
+  padding: 4px;
+  border: 1px solid var(--color-text);
+  border-radius: 0.4em;
+  color: var(--color-text);
   font-size: 1.6rem;
   font-weight: 700;
   text-transform: uppercase;
+  background-color: var(--color-secondary);
+  transition-property: color, background-color;
+  transition-duration: 200ms;
 }
 
 .keyboard .letter:not([disabled]) {
   box-shadow: var(--letter-box-shadow);
+}
+
+.keyboard .letter:hover:not([disabled]) {
+  background-color: var(--color-text);
+  color: var(--color-secondary);
+}
+
+.keyboard .letter[disabled] {
+  border: none;
+  color: var(--color-fade);
+  cursor: not-allowed;
 }
 
 .word {
