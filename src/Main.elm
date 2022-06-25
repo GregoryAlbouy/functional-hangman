@@ -225,11 +225,15 @@ viewError error =
 
 viewHangman : Model -> Html Msg
 viewHangman model =
+    let
+        isStarted =
+            Engine.isStarted model.engine
+    in
     div [ class "main-container" ]
         [ div [] [ viewWord model.engine ]
-        , div [] [ viewChancesLeft (Engine.chancesLeft model.engine) ]
-        , div [] [ viewKeyboard (Engine.isStarted model.engine) model.engine.pickedLetters ]
-        , div [] [ viewResult model.engine ]
+        , div [] [ viewChancesLeft isStarted (Engine.chancesLeft model.engine) ]
+        , div [] [ viewKeyboard isStarted model.engine.pickedLetters ]
+        , div [] [ viewButton ToggleOverlay "New game" ]
         ]
 
 
@@ -252,11 +256,11 @@ viewKeyboard isActive pickedLetters =
     div [ class "keyboard" ] (List.map toButton (Set.toList alphabet))
 
 
-viewChancesLeft : Int -> Html msg
-viewChancesLeft chancesLeft =
+viewChancesLeft : Bool -> Int -> Html msg
+viewChancesLeft isActive chancesLeft =
     let
         ratio =
-            if chances == 0 then
+            if chances == 0 || not isActive then
                 0
 
             else
@@ -282,27 +286,6 @@ viewWord engine =
             span [ class "letter" ] [ charToTextNode letter ]
     in
     div [ class "word" ] (List.map toSpan <| Engine.wordRepr '_' <| engine)
-
-
-viewResult : Engine.Model -> Html Msg
-viewResult engine =
-    let
-        message : String
-        message =
-            case Engine.state engine of
-                Ended Victory ->
-                    "You won!"
-
-                Ended Defeat ->
-                    "You lost!"
-
-                _ ->
-                    ""
-    in
-    div []
-        [ text message
-        , viewButton ToggleOverlay "New game"
-        ]
 
 
 viewButton : msg -> String -> Html msg
