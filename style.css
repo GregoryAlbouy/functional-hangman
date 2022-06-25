@@ -22,6 +22,7 @@
 }
 
 body {
+  margin: 0;
   background-color: var(--color-secondary);
   color: var(--color-text);
   font-family: var(--sans-serif);
