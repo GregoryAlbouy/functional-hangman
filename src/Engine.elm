@@ -65,8 +65,8 @@ state model =
         Nothing ->
             NotStarted
 
-        Just _ ->
-            if List.all (flip isLetterPicked model) (unwrapWord model.word) then
+        Just word ->
+            if List.all (flip isLetterPicked model) word then
                 Ended Victory
 
             else if chancesLeft model == 0 then
