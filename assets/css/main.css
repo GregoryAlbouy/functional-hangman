@@ -57,7 +57,7 @@ button {
   }
 }
 
-@keyframes close-manu-overlay {
+@keyframes close-menu-overlay {
   0% {
     opacity: 1;
     backdrop-filter: blur(0.8rem);
@@ -97,7 +97,7 @@ button {
 }
 
 .menu-overlay:not(.open) {
-  animation-name: close-manu-overlay;
+  animation-name: close-menu-overlay;
 }
 
 .menu-overlay .overlay-header {
