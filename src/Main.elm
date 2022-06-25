@@ -186,9 +186,17 @@ toKey input =
 view : Model -> Html Msg
 view model =
     div [ class "hangman" ]
-        [ viewMenuButton model.menu
+        [ viewHeader model.menu
         , viewMenu model.error model.wordInput model.menu
         , viewGame model
+        ]
+
+
+viewHeader : ToggleState -> Html Msg
+viewHeader menuState =
+    header [ class "header" ]
+        [ viewMenuButton menuState
+        , div [ class "page-title" ] [ text "The Hangman Game" ]
         ]
 
 

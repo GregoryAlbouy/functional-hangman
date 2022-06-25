@@ -168,24 +168,46 @@ button {
   margin: auto;
 }
 
-.burger-button {
+.header {
   position: fixed;
   top: 0;
   left: 0;
   display: flex;
+  align-items: center;
+  width: 100%;
+  height: 6.4rem;
+  z-index: 1000;
+}
+
+.header > * {
+  height: 100%;
+}
+
+.header .page-title {
+  display: flex;
+  align-items: center;
+  margin-left: 3.2rem;
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: 0.2rem;
+}
+
+.burger-button {
+  display: flex;
   justify-content: center;
   align-items: center;
   width: 6.4rem;
-  height: 6.4rem;
   background-color: var(--color-text);
   border-bottom-right-radius: 0.4rem;
   color: var(--color-secondary);
   cursor: pointer;
-  z-index: 1000;
 }
 
 .burger-button-bar {
   position: relative;
+  transition: visibility;
+  transition-duration: 0ms;
+  transition-delay: 10ms;
 }
 
 .burger-button-bar,
@@ -216,6 +238,7 @@ button {
 
 .burger-button.open .burger-button-bar {
   visibility: hidden;
+  transition-delay: 0ms;
 }
 
 .burger-button.open .burger-button-bar::before {
