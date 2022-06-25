@@ -274,7 +274,7 @@ button {
   font-weight: 700;
   text-transform: uppercase;
   background-color: var(--color-secondary);
-  transition-property: color, background-color;
+  transition-property: color, background-color, transform;
   transition-duration: 200ms;
 }
 
@@ -282,9 +282,10 @@ button {
   box-shadow: var(--letter-box-shadow);
 }
 
-.keyboard .letter:hover:not([disabled]) {
+.keyboard .letter:not([disabled]):hover {
   background-color: var(--color-text);
   color: var(--color-secondary);
+  transform: scale(1.15);
 }
 
 .keyboard .letter[disabled] {
