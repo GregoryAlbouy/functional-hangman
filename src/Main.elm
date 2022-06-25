@@ -187,7 +187,7 @@ view : Model -> Html Msg
 view model =
     div [ class "hangman" ]
         [ viewMenu model.error model.wordInput model.menu
-        , viewHangman model
+        , viewGame model
         ]
 
 
@@ -228,13 +228,13 @@ viewError error =
     div [] [ p [ style "color" "red" ] [ text message ] ]
 
 
-viewHangman : Model -> Html Msg
-viewHangman model =
+viewGame : Model -> Html Msg
+viewGame model =
     let
         isStarted =
             Engine.isStarted model.engine
     in
-    div [ class "main-container" ]
+    div [ class "game-container" ]
         [ div [] [ viewWord model.engine ]
         , div [] [ viewChancesLeft isStarted (Engine.chancesLeft model.engine) ]
         , div [] [ viewKeyboard isStarted model.engine.pickedLetters ]

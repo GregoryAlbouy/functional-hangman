@@ -156,7 +156,7 @@ button {
   height: 3.6rem;
 }
 
-.main-container {
+.game-container {
   display: flex;
   justify-content: center;
   flex-direction: column;
