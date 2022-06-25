@@ -101,7 +101,7 @@ button {
   background-color: rgba(0, 0, 0, 0.3);
   z-index: 100;
 
-  animation-duration: 200ms;
+  animation-duration: 100ms;
   animation-delay: 0ms;
   animation-direction: normal;
   animation-fill-mode: both;
