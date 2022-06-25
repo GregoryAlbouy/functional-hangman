@@ -181,14 +181,14 @@ toKey input =
 view : Model -> Html Msg
 view model =
     div [ class "hangman" ]
-        [ viewStartOverlay model.error model.wordInput model.isOverlayOpen
+        [ viewMenu model.error model.wordInput model.isOverlayOpen
         , viewHangman model
         ]
 
 
-viewStartOverlay : Maybe Http.Error -> String -> Bool -> Html Msg
-viewStartOverlay error wordInput isOpen =
-    div [ classList [ ( "start-overlay", True ), ( "open", isOpen ) ] ]
+viewMenu : Maybe Http.Error -> String -> Bool -> Html Msg
+viewMenu error wordInput isOpen =
+    div [ classList [ ( "menu-overlay", True ), ( "open", isOpen ) ] ]
         [ div [ class "form" ]
             [ header [ class "overlay-header" ]
                 [ h2 [] [ text "Start new game" ]

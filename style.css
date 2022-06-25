@@ -58,7 +58,7 @@ button {
   cursor: not-allowed;
 }
 
-.hangman .start-overlay {
+.hangman .menu-overlay {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -71,14 +71,14 @@ button {
   z-index: 100;
 }
 
-.hangman .start-overlay .overlay-header {
+.hangman .menu-overlay .overlay-header {
   position: relative;
   padding: 16px;
   background: var(--color-text);
   color: var(--color-secondary);
 }
 
-.hangman .start-overlay .form {
+.hangman .menu-overlay .form {
   width: 32rem;
   height: 48rem;
   overflow: hidden;
@@ -87,16 +87,16 @@ button {
   background-color: var(--color-secondary);
 }
 
-.hangman .start-overlay .overlay-body {
+.hangman .menu-overlay .overlay-body {
   padding: 0 16px;
 }
 
-.hangman .start-overlay .overlay-header h2 {
+.hangman .menu-overlay .overlay-header h2 {
   margin: 0;
   text-align: center;
 }
 
-.hangman .start-overlay .overlay-header .close-button {
+.hangman .menu-overlay .overlay-header .close-button {
   position: absolute;
   top: 16px;
   right: 16px;
@@ -106,7 +106,7 @@ button {
   color: inherit;
 }
 
-.hangman .start-overlay input {
+.hangman .menu-overlay input {
   width: 100%;
   height: 3.6rem;
 }
@@ -203,7 +203,7 @@ button {
   }
 }
 
-.start-overlay {
+.menu-overlay {
   animation-duration: 200ms;
   animation-delay: 0ms;
   animation-direction: normal;
@@ -212,9 +212,9 @@ button {
   /* will-change: opacity, filter, backdrop-filter; */
 }
 
-.start-overlay.open {
+.menu-overlay.open {
   animation-name: open-start-overlay;
 }
-.start-overlay:not(.open) {
+.menu-overlay:not(.open) {
   animation-name: close-start-overlay;
 }
