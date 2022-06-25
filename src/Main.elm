@@ -5,7 +5,7 @@ import Browser.Events
 import Constants
 import Engine exposing (End(..), State(..))
 import Html exposing (Html, a, button, div, h2, h3, header, img, input, p, span, text)
-import Html.Attributes exposing (alt, class, classList, disabled, href, src, style, target, type_, value)
+import Html.Attributes exposing (alt, class, classList, disabled, href, placeholder, src, style, target, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as D
@@ -218,15 +218,33 @@ viewMenu error wordInput state =
                 , button [ onClick (ToggleMenu Off), class "close-button" ] [ text "X" ]
                 ]
             , div [ class "overlay-body" ]
-                [ h3 [] [ text "2 players" ]
-                , input [ type_ "text", onInput SetCustomWord, value wordInput ] []
-                , viewButton (GotCustomWord wordInput) "Let's go!"
-                , h3 [] [ text "1 player" ]
-                , viewButton FetchRandomWord "Pick random word!"
+                [ h3 [ class "form-title" ] [ text "2 players" ]
+                , viewWordInput wordInput
+                , h3 [ class "form-title" ] [ text "1 player" ]
+                , viewFetchRandomWordButton
                 , viewError error
                 ]
             ]
         ]
+
+
+viewWordInput : String -> Html Msg
+viewWordInput wordInput =
+    div [ class "word-input-container" ]
+        [ input
+            [ type_ "text"
+            , placeholder "Type a word..."
+            , onInput SetCustomWord
+            , value wordInput
+            ]
+            []
+        , viewButton (GotCustomWord wordInput) { content = "Go", className = "" }
+        ]
+
+
+viewFetchRandomWordButton : Html Msg
+viewFetchRandomWordButton =
+    viewButton FetchRandomWord { content = "Random word", className = "full-width" }
 
 
 viewError : Maybe Http.Error -> Html Msg
@@ -310,9 +328,9 @@ viewWord engine =
     div [ class "word" ] (List.map toSpan <| Engine.wordRepr '_' <| engine)
 
 
-viewButton : msg -> String -> Html msg
-viewButton msg content =
-    button [ onClick msg, class "button" ] [ text content ]
+viewButton : msg -> { className : String, content : String } -> Html msg
+viewButton msg { className, content } =
+    button [ onClick msg, class ("button " ++ className) ] [ text content ]
 
 
 viewImg : String -> String -> Html msg

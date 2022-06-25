@@ -1,13 +1,20 @@
 :root {
-  --color-primary: #00ffee; /* hsl(176, 100%, 50%) */
-  --color-secondary: #181822;
-  --color-dark: #101010;
-  --color-destructive: #ff6633; /* hsl(356, 100%, 50%) */
-  --color-text: #f0f0f0;
-  --color-fade: #999999;
+  --color-white: #f0f0f0;
+  --color-black: #181822;
+  --color-light-grey: #cccccc;
+  --color-dark-grey: #666666;
+  --color-yellow-green: #60c060;
+  --color-orange-red: #ff6633;
 
-  --themed-box-shadow-color: rgba(255, 255, 255, 0.2);
-  --letter-box-shadow: 0 0 1.2rem var(--themed-box-shadow-color);
+  --theme-accent: var(--color-yellow-green);
+  --theme-foreground: var(--color-white);
+  --theme-background: var(--color-black);
+  --theme-destructive: var(--color-orange-red);
+  --theme-faded: var(--color-dark-grey);
+
+  --theme-border-radius: 0.8rem;
+  --theme-box-shadow-color: rgba(255, 255, 255, 0.2);
+  --letter-box-shadow: 0 0 1.2rem var(--theme-box-shadow-color);
 
   --sans-serif: "Raleway", sans-serif;
 
@@ -16,20 +23,18 @@
 
 @media (prefers-color-scheme: light) {
   :root {
-    --color-primary: #181822;
-    --color-text: #101010;
-    --color-secondary: #f0f0f0;
-    --color-dark: #f0f0f0;
-    --color-fade: #999999;
+    --theme-foreground: var(--color-black);
+    --theme-background: var(--color-white);
+    --theme-faded: var(--color-light-grey);
 
-    --themed-box-shadow-color: rgba(0, 0, 0, 0.25);
+    --theme-box-shadow-color: rgba(0, 0, 0, 0.2);
   }
 }
 
 body {
   margin: 0;
-  background-color: var(--color-secondary);
-  color: var(--color-text);
+  background-color: var(--theme-background);
+  color: var(--theme-foreground);
   font-family: var(--sans-serif);
   font-size: 1.4rem;
 }
@@ -38,8 +43,24 @@ button {
   cursor: pointer;
 }
 
+input {
+  padding: 0;
+  border: none;
+  outline: none;
+}
+
 .button {
-  /* TODO */
+  min-height: 4.8rem;
+  border: none;
+  border-radius: var(--theme-border-radius);
+  background-color: var(--theme-accent);
+  color: var(--theme-background);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.full-width {
+  width: 100%;
 }
 
 @keyframes open-menu-overlay {
@@ -103,17 +124,17 @@ button {
 .menu-overlay .overlay-header {
   position: relative;
   padding: 16px;
-  background: var(--color-text);
-  color: var(--color-secondary);
+  background: var(--theme-foreground);
+  color: var(--theme-background);
 }
 
 .menu-overlay .form {
   width: 32rem;
-  height: 48rem;
   overflow: hidden;
+  border: 1px solid var(--theme-foreground);
   border-radius: 16px;
-  box-shadow: 0 0 8rem var(--color-dark);
-  background-color: var(--color-secondary);
+  box-shadow: 0 0 8rem var(--theme-box-shadow-color);
+  background-color: var(--theme-background);
 }
 
 .menu-overlay .overlay-body {
@@ -135,9 +156,66 @@ button {
   color: inherit;
 }
 
-.menu-overlay input {
+.menu-overlay .word-input-container {
+  display: flex;
   width: 100%;
-  height: 3.6rem;
+  height: 4.8rem;
+}
+
+.menu-overlay .word-input-container > * {
+  height: 100%;
+}
+
+.menu-overlay .word-input-container input {
+  width: 100%;
+  padding-left: 1.6rem;
+  font-size: 1.6rem;
+  text-transform: uppercase;
+  color: var(--theme-foreground);
+  border-top-left-radius: var(--theme-border-radius);
+  border-bottom-left-radius: var(--theme-border-radius);
+}
+
+.menu-overlay .word-input-container input::placeholder {
+  color: var(--theme-faded);
+  font-style: italic;
+}
+
+.menu-overlay .word-input-container input:focus {
+  box-shadow: inset 0 0 0.4rem var(--theme-accent);
+}
+
+.menu-overlay .word-input-container .button {
+  flex-shrink: 0;
+  width: 4.8rem;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.menu-overlay .form-title {
+  position: relative;
+  margin-top: 3.2rem;
+  margin-bottom: 2.4rem;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.menu-overlay .form-title::before,
+.menu-overlay .form-title::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 6.4rem;
+  height: 1px;
+  background-color: var(--theme-faded);
+}
+
+.menu-overlay .form-title::before {
+  left: 0;
+}
+
+.menu-overlay .form-title::after {
+  right: 0;
 }
 
 .game-container {
@@ -172,9 +250,9 @@ button {
   justify-content: center;
   align-items: center;
   width: 6.4rem;
-  background-color: var(--color-text);
+  background-color: var(--theme-foreground);
   border-bottom-right-radius: 0.4rem;
-  color: var(--color-secondary);
+  color: var(--theme-background);
   cursor: pointer;
 }
 
@@ -269,11 +347,11 @@ button {
   padding: 4px;
   border: none;
   border-radius: 0.4em;
-  color: var(--color-text);
+  color: var(--theme-foreground);
   font-size: 1.6rem;
   font-weight: 700;
   text-transform: uppercase;
-  background-color: var(--color-secondary);
+  background-color: var(--theme-background);
   transition-property: color, background-color, transform;
   transition-duration: 200ms;
 }
@@ -283,14 +361,14 @@ button {
 }
 
 .keyboard .letter:not([disabled]):hover {
-  background-color: var(--color-text);
-  color: var(--color-secondary);
+  background-color: var(--theme-foreground);
+  color: var(--theme-background);
   transform: scale(1.15);
 }
 
 .keyboard .letter[disabled] {
   border: none;
-  color: var(--color-fade);
+  color: var(--theme-faded);
   cursor: not-allowed;
 }
 
@@ -316,7 +394,7 @@ button {
 
 .chances .bar {
   height: 100%;
-  background-color: var(--color-destructive);
+  background-color: var(--theme-destructive);
   transition-property: transform;
   transition-duration: 800ms;
   transition-timing-function: cubic-bezier(0.6, -0.6, 0.2, 1.5);
