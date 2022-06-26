@@ -19,18 +19,20 @@ import Set exposing (Set)
 
 type alias Model =
     { engine : Engine.Model
+    , menu : ToggleState
+    , difficulty : Difficulty
     , wordInput : String
     , error : Maybe Http.Error
-    , menu : ToggleState
     }
 
 
 initialModel : Model
 initialModel =
     { engine = Engine.empty
+    , menu = On
+    , difficulty = Medium
     , wordInput = ""
     , error = Nothing
-    , menu = On
     }
 
 
@@ -58,23 +60,25 @@ alphabet =
     charSetFromRange 'a' 'z'
 
 
-chances : Int
-chances =
-    10
-
-
 
 -- UPDATE
 
 
 type Msg
-    = FetchRandomWord
-    | GotRandomWord (Result Http.Error (List String))
-    | GotCustomWord String
-    | Pick Char
+    = ToggleMenu ToggleState
+    | SetDifficulty Difficulty
     | SetCustomWord String
-    | ToggleMenu ToggleState
+    | GotCustomWord String
+    | FetchRandomWord
+    | GotRandomWord (Result Http.Error (List String))
+    | Pick Char
     | Noop
+
+
+type Difficulty
+    = Easy
+    | Medium
+    | Hard
 
 
 type ToggleState
@@ -102,7 +106,7 @@ update msg model =
             ( model
                 |> withWordInput ""
                 |> withMenu Off
-                |> withEngine (Engine.init word chances)
+                |> withEngine (Engine.init word (chancesByDifficulty model.difficulty))
             , Cmd.none
             )
     in
@@ -144,6 +148,9 @@ update msg model =
             ( model |> withMenu state
             , Cmd.none
             )
+
+        SetDifficulty d ->
+            ( { model | difficulty = d }, Cmd.none )
 
         Noop ->
             noop
@@ -272,7 +279,13 @@ viewGame model =
     in
     div [ class "game-container" ]
         [ div [] [ viewWord model.engine ]
-        , div [] [ viewChancesLeft isStarted (Engine.chancesLeft model.engine) ]
+        , div []
+            [ viewChancesLeft
+                { isActive = isStarted
+                , current = Engine.chancesLeft model.engine
+                , max = chancesByDifficulty model.difficulty
+                }
+            ]
         , div [] [ viewKeyboard isStarted model.engine.pickedLetters ]
         ]
 
@@ -296,16 +309,16 @@ viewKeyboard isActive pickedLetters =
     div [ class "keyboard" ] (List.map toButton (Set.toList alphabet))
 
 
-viewChancesLeft : Bool -> Int -> Html msg
-viewChancesLeft isActive chancesLeft =
+viewChancesLeft : { isActive : Bool, current : Int, max : Int } -> Html msg
+viewChancesLeft { isActive, current, max } =
     let
         ratio =
-            if chances == 0 || not isActive then
+            if current == 0 || not isActive then
                 0
 
             else
-                toFloat (chances - chancesLeft)
-                    / toFloat chances
+                toFloat (max - current)
+                    / toFloat max
     in
     div [ class "chances" ]
         [ div [ class "container" ]
@@ -354,6 +367,19 @@ charSetFromRange head tail =
         >> List.range (Char.toCode head)
         >> List.map Char.fromCode
         >> Set.fromList
+
+
+chancesByDifficulty : Difficulty -> Int
+chancesByDifficulty difficulty =
+    case difficulty of
+        Easy ->
+            12
+
+        Medium ->
+            9
+
+        Hard ->
+            6
 
 
 charToTextNode : Char -> Html msg
