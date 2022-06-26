@@ -4,7 +4,7 @@ import Browser
 import Browser.Events
 import Constants
 import Engine exposing (End(..), State(..))
-import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, p, span, text)
+import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, p, section, span, text)
 import Html.Attributes exposing (alt, class, classList, disabled, href, name, placeholder, src, style, target, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
@@ -221,16 +221,18 @@ viewMenuButton state =
 
 viewMenu : Maybe Http.Error -> String -> ToggleState -> Difficulty -> Html Msg
 viewMenu error wordInput state difficulty =
+    let
+        viewSection : String -> Html Msg -> Html Msg
+        viewSection title content =
+            section [] [ h3 [ class "form-title" ] [ text title ], content ]
+    in
     div [ classList [ ( "menu-overlay", True ), ( "open", state == On ) ] ]
         [ div [ class "form" ]
             [ header [ class "overlay-header" ] [ h2 [] [ text "Start new game" ] ]
             , div [ class "overlay-body" ]
-                [ h3 [ class "form-title" ] [ text "Difficulty" ]
-                , viewSelectDifficulty difficulty
-                , h3 [ class "form-title" ] [ text "2 players" ]
-                , viewWordInput wordInput
-                , h3 [ class "form-title" ] [ text "1 player" ]
-                , viewFetchRandomWordButton
+                [ viewSection "Difficulty" (viewSelectDifficulty difficulty)
+                , viewSection "2 players" (viewWordInput wordInput)
+                , viewSection "1 player" viewFetchRandomWordButton
                 , viewError error
                 ]
             ]
@@ -240,8 +242,8 @@ viewMenu error wordInput state difficulty =
 viewSelectDifficulty : Difficulty -> Html Msg
 viewSelectDifficulty state =
     let
-        makeButton : ( String, Difficulty ) -> Html Msg
-        makeButton ( label, current ) =
+        viewChoice : ( String, Difficulty ) -> Html Msg
+        viewChoice ( label, current ) =
             button
                 [ classList [ ( "button", True ), ( "checked", state == current ) ]
                 , onClick (SetDifficulty current)
@@ -249,7 +251,7 @@ viewSelectDifficulty state =
                 [ text label ]
     in
     [ ( "Easy", Easy ), ( "Medium", Medium ), ( "Hard", Hard ) ]
-        |> List.map makeButton
+        |> List.map viewChoice
         |> div [ class "select-difficulty" ]
 
 
