@@ -4,8 +4,8 @@ import Browser
 import Browser.Events
 import Constants
 import Engine exposing (End(..), State(..))
-import Html exposing (Html, a, button, div, h2, h3, header, img, input, p, span, text)
-import Html.Attributes exposing (alt, class, classList, disabled, href, placeholder, src, style, target, type_, value)
+import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, p, span, text)
+import Html.Attributes exposing (alt, checked, class, classList, disabled, for, href, id, name, placeholder, src, style, target, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as D
@@ -193,7 +193,7 @@ view : Model -> Html Msg
 view model =
     div [ class "hangman" ]
         [ viewHeader model.menu
-        , viewMenu model.error model.wordInput model.menu
+        , viewMenu model.error model.wordInput model.menu model.difficulty
         , viewGame model
         ]
 
@@ -219,13 +219,14 @@ viewMenuButton state =
         ]
 
 
-viewMenu : Maybe Http.Error -> String -> ToggleState -> Html Msg
-viewMenu error wordInput state =
+viewMenu : Maybe Http.Error -> String -> ToggleState -> Difficulty -> Html Msg
+viewMenu error wordInput state difficulty =
     div [ classList [ ( "menu-overlay", True ), ( "open", state == On ) ] ]
         [ div [ class "form" ]
             [ header [ class "overlay-header" ] [ h2 [] [ text "Start new game" ] ]
             , div [ class "overlay-body" ]
-                [ h3 [ class "form-title" ] [ text "2 players" ]
+                [ viewSelectDifficulty difficulty
+                , h3 [ class "form-title" ] [ text "2 players" ]
                 , viewWordInput wordInput
                 , h3 [ class "form-title" ] [ text "1 player" ]
                 , viewFetchRandomWordButton
@@ -233,6 +234,37 @@ viewMenu error wordInput state =
                 ]
             ]
         ]
+
+
+viewSelectDifficulty : Difficulty -> Html Msg
+viewSelectDifficulty state =
+    let
+        toId s =
+            "difficulty-" ++ String.toLower s
+
+        radio : ( String, Difficulty ) -> List (Html Msg)
+        radio ( id_, current ) =
+            [ input
+                [ type_ "radio"
+                , name "difficulty"
+                , id (toId id_)
+                , onClick (SetDifficulty current)
+                , checked (state == current)
+                ]
+                []
+            , label
+                [ for (toId id_)
+                , classList [ ( "checked", state == current ) ]
+                ]
+                [ text id_ ]
+            ]
+    in
+    [ ( "Easy", Easy )
+    , ( "Medium", Medium )
+    , ( "Hard", Hard )
+    ]
+        |> List.concatMap radio
+        |> div [ class "choose-difficulty" ]
 
 
 viewWordInput : String -> Html Msg
