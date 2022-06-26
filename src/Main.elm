@@ -5,7 +5,7 @@ import Browser.Events
 import Constants
 import Engine exposing (End(..), State(..))
 import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, p, span, text)
-import Html.Attributes exposing (alt, checked, class, classList, disabled, for, href, id, name, placeholder, src, style, target, type_, value)
+import Html.Attributes exposing (alt, class, classList, disabled, href, name, placeholder, src, style, target, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as D
@@ -239,32 +239,17 @@ viewMenu error wordInput state difficulty =
 viewSelectDifficulty : Difficulty -> Html Msg
 viewSelectDifficulty state =
     let
-        toId s =
-            "difficulty-" ++ String.toLower s
-
-        radio : ( String, Difficulty ) -> List (Html Msg)
-        radio ( id_, current ) =
-            [ input
-                [ type_ "radio"
-                , name "difficulty"
-                , id (toId id_)
+        makeButton : ( String, Difficulty ) -> Html Msg
+        makeButton ( label, current ) =
+            button
+                [ classList [ ( "button", True ), ( "checked", state == current ) ]
                 , onClick (SetDifficulty current)
-                , checked (state == current)
                 ]
-                []
-            , label
-                [ for (toId id_)
-                , classList [ ( "checked", state == current ) ]
-                ]
-                [ text id_ ]
-            ]
+                [ text label ]
     in
-    [ ( "Easy", Easy )
-    , ( "Medium", Medium )
-    , ( "Hard", Hard )
-    ]
-        |> List.concatMap radio
-        |> div [ class "choose-difficulty" ]
+    [ ( "Easy", Easy ), ( "Medium", Medium ), ( "Hard", Hard ) ]
+        |> List.map makeButton
+        |> div [ class "select-difficulty" ]
 
 
 viewWordInput : String -> Html Msg
