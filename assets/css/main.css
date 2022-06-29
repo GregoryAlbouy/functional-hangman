@@ -384,7 +384,7 @@ input {
   align-items: center;
   width: 5.2rem;
   height: 5.2rem;
-  border: none;
+  border: 1px solid currentColor;
   color: var(--theme-foreground);
   font-size: 1.6rem;
   font-weight: 700;
