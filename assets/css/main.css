@@ -83,36 +83,6 @@ input {
   width: 100%;
 }
 
-@keyframes open-overlay-blur {
-  0% {
-    opacity: 0;
-    backdrop-filter: blur(0);
-    filter: blur(1rem);
-    visibility: hidden;
-  }
-  100% {
-    opacity: 1;
-    backdrop-filter: blur(0.4rem);
-    filter: blur(0);
-    visibility: visible;
-  }
-}
-
-@keyframes close-overlay-blur {
-  0% {
-    opacity: 1;
-    backdrop-filter: blur(0.4rem);
-    filter: blur(0);
-    visibility: visible;
-  }
-  100% {
-    opacity: 0;
-    backdrop-filter: blur(0);
-    filter: blur(1rem);
-    visibility: hidden;
-  }
-}
-
 .overlay-blur {
   display: flex;
   justify-content: center;
@@ -125,20 +95,20 @@ input {
   background-color: rgba(0, 0, 0, 0.3);
   z-index: 100;
 
-  animation-duration: 100ms;
-  animation-delay: 0ms;
-  animation-direction: normal;
-  animation-fill-mode: both;
-  animation-timing-function: linear;
-  will-change: opacity, filter, backdrop-filter, visibility;
+  opacity: 0;
+  backdrop-filter: blur(0);
+  visibility: hidden;
+
+  transition-property: opacity, backdrop-filter, visibility;
+  transition-duration: 100ms;
+  transition-timing-function: linear;
+  will-change: opacity, backdrop-filter, visibility;
 }
 
 .overlay-blur.open {
-  animation-name: open-overlay-blur;
-}
-
-.overlay-blur:not(.open) {
-  animation-name: close-overlay-blur;
+  opacity: 1;
+  backdrop-filter: blur(0.4rem);
+  visibility: visible;
 }
 
 .menu .menu-header {
