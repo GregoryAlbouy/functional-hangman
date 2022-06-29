@@ -327,7 +327,7 @@ viewGame model =
         [ div [] [ viewWord model.engine ]
         , div []
             [ viewChancesLeft
-                { isActive = isStarted
+                { gameState = Engine.state model.engine
                 , current = Engine.chancesLeft model.engine
                 , max = chancesByDifficulty model.difficulty
                 }
@@ -355,21 +355,30 @@ viewKeyboard isActive pickedLetters =
     div [ class "keyboard" ] (List.map toButton (Set.toList alphabet))
 
 
-viewChancesLeft : { isActive : Bool, current : Int, max : Int } -> Html msg
-viewChancesLeft { isActive, current, max } =
+viewChancesLeft : { gameState : Engine.State, current : Int, max : Int } -> Html msg
+viewChancesLeft { gameState, current, max } =
     let
-        ratio =
-            if current == 0 || not isActive then
-                0
+        ( className, ratio ) =
+            case gameState of
+                NotStarted ->
+                    ( "", 0 )
 
-            else
-                toFloat (max - current)
-                    / toFloat max
+                Ended Victory ->
+                    ( "victory", 1 )
+
+                Ended Defeat ->
+                    ( "defeat", 1 )
+
+                Running ->
+                    ( ""
+                    , toFloat (max - current)
+                        / toFloat max
+                    )
     in
     div [ class "chances" ]
         [ div [ class "container" ]
             [ div
-                [ class "bar"
+                [ classList [ ( "bar", True ), ( className, True ) ]
                 , style "transform" ("scaleX(" ++ String.fromFloat ratio ++ ")")
                 ]
                 []

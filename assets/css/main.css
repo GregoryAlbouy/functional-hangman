@@ -4,16 +4,18 @@
   --color-light-grey: #ccc;
   --color-dark-grey: #666;
   --color-orange-red: #f63;
+  --color-red: #f33;
+  --color-green: #6f3;
 
   --theme-accent: var(--color-orange-red);
   --theme-foreground: var(--color-white);
   --theme-background: var(--color-dark-teal);
-  --theme-destructive: var(--color-orange-red);
+  --theme-destructive: var(--color-red);
+  --theme-valid: var(--color-green);
   --theme-faded: var(--color-dark-grey);
 
   --theme-border-radius: 0.8rem;
   --theme-box-shadow-color: rgba(255, 255, 255, 0.2);
-  --letter-box-shadow: 0 0 1.2rem var(--theme-box-shadow-color);
 
   --layout-header-height: 6.4rem;
   --layout-body-height: calc(100vh - var(--layout-header-height));
@@ -394,7 +396,7 @@ input {
 }
 
 .keyboard .letter:not([disabled]) {
-  box-shadow: var(--letter-box-shadow);
+  box-shadow: 0 0 1.2rem var(--theme-box-shadow-color);
 }
 
 .keyboard .letter:not([disabled]):hover {
@@ -433,8 +435,17 @@ input {
 
 .chances .bar {
   height: 100%;
-  background-color: var(--theme-destructive);
-  transition-property: transform;
+  color: var(--theme-accent);
+  background-color: currentColor;
+  transition-property: transform, color;
   transition-duration: 800ms;
   transition-timing-function: cubic-bezier(0.6, -0.6, 0.2, 1.5);
+}
+
+.chances .bar.victory {
+  color: var(--theme-valid);
+}
+
+.chances .bar.defeat {
+  color: var(--theme-destructive);
 }
