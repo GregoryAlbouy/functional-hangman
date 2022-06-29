@@ -161,25 +161,29 @@ update msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
-    listenKeyboardEvents
+subscriptions model =
+    listenKeyboardEvents model
 
 
-listenKeyboardEvents : Sub Msg
-listenKeyboardEvents =
-    Browser.Events.onKeyUp decodeKey
+listenKeyboardEvents : Model -> Sub Msg
+listenKeyboardEvents model =
+    Browser.Events.onKeyUp (decodeKey model)
 
 
-decodeKey : D.Decoder Msg
-decodeKey =
-    D.map toKey (D.field "key" D.string)
+decodeKey : Model -> D.Decoder Msg
+decodeKey model =
+    D.map (toKey model) (D.field "key" D.string)
 
 
-toKey : String -> Msg
-toKey input =
+toKey : Model -> String -> Msg
+toKey model input =
     case String.uncons input of
         Just ( char, "" ) ->
-            Pick char
+            if model.menu == Off then
+                Pick char
+
+            else
+                Noop
 
         _ ->
             Noop
