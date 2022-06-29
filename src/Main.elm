@@ -238,7 +238,7 @@ viewMenu error wordInput state difficulty =
     in
     div [ classList [ ( "menu-overlay", True ), ( "open", state == On ) ] ]
         [ div [ class "form" ]
-            [ header [ class "overlay-header" ] [ h2 [] [ text "Start new game" ] ]
+            [ header [ class "overlay-header" ] [ h2 [] [ text "New Game" ] ]
             , div [ class "overlay-body" ]
                 [ viewSection "Difficulty" (viewSelectDifficulty difficulty)
                 , viewSection "2 players" (viewWordInput wordInput)
