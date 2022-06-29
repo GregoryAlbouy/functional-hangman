@@ -51,6 +51,11 @@ withWordInput wordInput model =
     { model | wordInput = wordInput }
 
 
+withError : Maybe Http.Error -> Model -> Model
+withError error model =
+    { model | error = error }
+
+
 
 -- CONSTANTS
 
@@ -106,6 +111,7 @@ update msg model =
             ( model
                 |> withWordInput ""
                 |> withMenu Off
+                |> withError Nothing
                 |> withEngine (Engine.init word (chancesByDifficulty model.difficulty))
             , Cmd.none
             )
@@ -130,7 +136,7 @@ update msg model =
                     noop
 
         GotRandomWord (Err error) ->
-            ( { model | error = Just error }, Cmd.none )
+            ( model |> withError (Just error), Cmd.none )
 
         GotCustomWord word ->
             startGame word
