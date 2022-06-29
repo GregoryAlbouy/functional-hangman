@@ -10,7 +10,9 @@ import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as D
 import Platform.Cmd exposing (Cmd)
+import Process
 import Set exposing (Set)
+import Task
 
 
 
@@ -89,6 +91,7 @@ type Difficulty
 type ToggleState
     = On
     | Off
+    | Closing
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -150,6 +153,11 @@ update msg model =
             else
                 noop
 
+        ToggleMenu Closing ->
+            ( model |> withMenu Closing
+            , closeMenu
+            )
+
         ToggleMenu state ->
             ( model |> withMenu state
             , Cmd.none
@@ -169,6 +177,11 @@ update msg model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     listenKeyboardEvents model
+
+
+closeMenu : Cmd Msg
+closeMenu =
+    Process.sleep 200 |> Task.perform (\_ -> ToggleMenu Off)
 
 
 listenKeyboardEvents : Model -> Sub Msg
@@ -201,11 +214,21 @@ toKey model input =
 
 view : Model -> Html Msg
 view model =
-    div [ class "hangman" ]
-        [ viewHeader model.menu
-        , viewMenu model.error model.wordInput model.menu model.difficulty
-        , viewGame model
-        ]
+    let
+        menu =
+            viewMenu model.error model.wordInput model.menu model.difficulty
+
+        rest =
+            [ viewHeader model.menu, viewGame model ]
+
+        layout =
+            if model.menu == Off then
+                rest
+
+            else
+                menu :: rest
+    in
+    div [ class "hangman" ] layout
 
 
 viewHeader : ToggleState -> Html Msg
@@ -454,10 +477,13 @@ toggleMenu : ToggleState -> Msg
 toggleMenu state =
     case state of
         On ->
-            ToggleMenu Off
+            ToggleMenu Closing
 
         Off ->
             ToggleMenu On
+
+        Closing ->
+            Noop
 
 
 imgPath : String -> String
