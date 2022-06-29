@@ -6,6 +6,8 @@
   --color-orange-red: #f63;
   --color-red: #f33;
   --color-green: #6f3;
+  --color-transparent-white: rgba(255, 255, 255, 0.2);
+  --color-transparent-black: rgba(0, 0, 0, 0.2);
 
   --theme-accent: var(--color-orange-red);
   --theme-foreground: var(--color-white);
@@ -15,7 +17,7 @@
   --theme-faded: var(--color-dark-grey);
 
   --theme-border-radius: 0.8rem;
-  --theme-box-shadow-color: rgba(255, 255, 255, 0.2);
+  --theme-box-shadow-color: var(--color-transparent-white);
 
   --layout-header-height: 6.4rem;
   --layout-body-height: calc(100vh - var(--layout-header-height));
@@ -31,7 +33,7 @@
     --theme-background: var(--color-white);
     --theme-faded: var(--color-light-grey);
 
-    --theme-box-shadow-color: rgba(0, 0, 0, 0.2);
+    --theme-box-shadow-color: var(--color-transparent-black);
   }
 }
 
@@ -56,6 +58,8 @@ body {
 }
 
 button {
+  border: none;
+  outline: none;
   cursor: pointer;
 }
 
@@ -63,12 +67,11 @@ input {
   padding: 0;
   border: none;
   outline: none;
-  background-color: #ffffff;
+  background-color: #fff;
   color: var(--color-dark-teal);
 }
 
 .button {
-  border: none;
   border-radius: var(--theme-border-radius);
   background-color: var(--theme-accent);
   color: var(--theme-background);
@@ -80,7 +83,7 @@ input {
   width: 100%;
 }
 
-@keyframes open-menu-overlay {
+@keyframes open-overlay-blur {
   0% {
     opacity: 0;
     backdrop-filter: blur(0);
@@ -95,7 +98,7 @@ input {
   }
 }
 
-@keyframes close-menu-overlay {
+@keyframes close-overlay-blur {
   0% {
     opacity: 1;
     backdrop-filter: blur(0.4rem);
@@ -110,7 +113,7 @@ input {
   }
 }
 
-.menu-overlay {
+.overlay-blur {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -127,25 +130,25 @@ input {
   animation-direction: normal;
   animation-fill-mode: both;
   animation-timing-function: linear;
-  /* will-change: opacity, filter, backdrop-filter; */
+  will-change: opacity, filter, backdrop-filter, visibility;
 }
 
-.menu-overlay.open {
-  animation-name: open-menu-overlay;
+.overlay-blur.open {
+  animation-name: open-overlay-blur;
 }
 
-.menu-overlay:not(.open) {
-  animation-name: close-menu-overlay;
+.overlay-blur:not(.open) {
+  animation-name: close-overlay-blur;
 }
 
-.menu-overlay .overlay-header {
+.menu .menu-header {
   position: relative;
   padding: 16px;
   background: var(--theme-foreground);
   color: var(--theme-background);
 }
 
-.menu-overlay .form {
+.menu {
   width: 32rem;
   overflow: hidden;
   border: 1px solid var(--theme-foreground);
@@ -154,55 +157,54 @@ input {
   background-color: var(--theme-background);
 }
 
-.form .button {
+.menu .button {
   height: 4.8rem;
 }
 
-.menu-overlay .overlay-body {
+.menu .menu-body {
   padding: 0 16px;
 }
 
-.menu-overlay h2 {
+.menu h2 {
   margin: 0;
   text-align: center;
 }
 
-.menu-overlay .word-input-container {
+.menu .word-input-container {
   display: flex;
   width: 100%;
   height: 4.8rem;
+  overflow: hidden;
+  border-radius: var(--theme-border-radius);
 }
 
-.menu-overlay .word-input-container > * {
+.menu .word-input-container > * {
   height: 100%;
 }
 
-.menu-overlay .word-input-container input {
-  width: 100%;
+.menu .word-input-container input {
+  flex-grow: 1;
   padding-left: 1.6rem;
   font-size: 1.8rem;
   text-transform: uppercase;
-  border-top-left-radius: var(--theme-border-radius);
-  border-bottom-left-radius: var(--theme-border-radius);
 }
 
-.menu-overlay .word-input-container input::placeholder {
+.menu .word-input-container input::placeholder {
   color: var(--theme-faded);
   font-style: italic;
 }
 
-.menu-overlay .word-input-container input:focus {
+.menu .word-input-container input:focus {
   box-shadow: inset 0 0 0.4rem var(--theme-accent);
 }
 
-.menu-overlay .word-input-container .button {
+.menu .word-input-container .button {
   flex-shrink: 0;
   width: 4.8rem;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+  border-radius: 0;
 }
 
-.menu-overlay .form-title {
+.menu .section-title {
   position: relative;
   margin-top: 3.2rem;
   margin-bottom: 2.4rem;
@@ -210,8 +212,8 @@ input {
   text-transform: uppercase;
 }
 
-.menu-overlay .form-title::before,
-.menu-overlay .form-title::after {
+.menu .section-title::before,
+.menu .section-title::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -220,23 +222,23 @@ input {
   background-color: var(--theme-faded);
 }
 
-.menu-overlay .form-title::before {
+.menu .section-title::before {
   left: 0;
 }
 
-.menu-overlay .form-title::after {
+.menu .section-title::after {
   right: 0;
 }
 
-.select-difficulty {
+.menu .select-difficulty {
   display: flex;
 }
 
-.select-difficulty > * {
+.menu .select-difficulty > * {
   flex: 1 1 0;
 }
 
-.select-difficulty .button {
+.menu .select-difficulty .button {
   height: initial;
   border-radius: 0;
   background: var(--theme-background);
@@ -244,21 +246,21 @@ input {
   transition: border 200ms, box-shadow 200ms;
 }
 
-.select-difficulty .button:first-of-type {
+.menu .select-difficulty .button:first-of-type {
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
 }
 
-.select-difficulty .button:last-of-type {
+.menu .select-difficulty .button:last-of-type {
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
 }
 
-.select-difficulty .button.checked {
+.menu .select-difficulty .button.checked {
   color: var(--theme-accent);
 }
 
-.header {
+.main-header {
   position: absolute;
   display: flex;
   align-items: center;
@@ -267,7 +269,7 @@ input {
   z-index: 1000;
 }
 
-.header > * {
+.main-header > * {
   height: 100%;
 }
 
@@ -328,7 +330,7 @@ input {
   transform: rotateZ(45deg);
 }
 
-.header .page-title {
+.main-header .page-title {
   display: flex;
   align-items: center;
   margin-left: 3.2rem;
@@ -337,7 +339,7 @@ input {
   letter-spacing: 0.2rem;
 }
 
-.header .github {
+.main-header .github {
   width: 4rem;
   height: 4rem;
   margin-left: auto;
@@ -345,14 +347,14 @@ input {
   cursor: pointer;
 }
 
-.header .github img {
+.main-header .github img {
   width: 100%;
   height: 100%;
   filter: brightness(5) saturate(0);
   transition: filter 200ms;
 }
 
-.header .github img:hover {
+.main-header .github img:hover {
   filter: brightness(10) saturate(0);
 }
 

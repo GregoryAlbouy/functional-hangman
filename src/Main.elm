@@ -210,7 +210,7 @@ view model =
 
 viewHeader : ToggleState -> Html Msg
 viewHeader menuState =
-    header [ class "header" ]
+    header [ class "main-header" ]
         [ viewMenuButton menuState
         , div [ class "page-title" ] [ text "The Hangman Game" ]
         , viewExtLink
@@ -234,12 +234,12 @@ viewMenu error wordInput state difficulty =
     let
         viewSection : String -> Html Msg -> Html Msg
         viewSection title content =
-            section [] [ h3 [ class "form-title" ] [ text title ], content ]
+            section [] [ h3 [ class "section-title" ] [ text title ], content ]
     in
-    div [ classList [ ( "menu-overlay", True ), ( "open", state == On ) ] ]
-        [ div [ class "form" ]
-            [ header [ class "overlay-header" ] [ h2 [] [ text "New Game" ] ]
-            , div [ class "overlay-body" ]
+    div [ classList [ ( "overlay-blur", True ), ( "open", state == On ) ] ]
+        [ div [ class "menu" ]
+            [ header [ class "menu-header" ] [ h2 [] [ text "New Game" ] ]
+            , div [ class "menu-body" ]
                 [ viewSection "Difficulty" (viewSelectDifficulty difficulty)
                 , viewSection "2 players" (viewWordInput wordInput)
                 , viewSection "1 player" viewFetchRandomWordButton
