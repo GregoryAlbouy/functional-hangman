@@ -1,14 +1,13 @@
 :root {
-  --color-white: #f0f0f0;
-  --color-black: #181822;
-  --color-light-grey: #cccccc;
-  --color-dark-grey: #666666;
-  --color-yellow-green: #ff6633;
-  --color-orange-red: #ff6633;
+  --color-white: #eee;
+  --color-dark-teal: #123;
+  --color-light-grey: #ccc;
+  --color-dark-grey: #666;
+  --color-orange-red: #f63;
 
-  --theme-accent: var(--color-yellow-green);
+  --theme-accent: var(--color-orange-red);
   --theme-foreground: var(--color-white);
-  --theme-background: var(--color-black);
+  --theme-background: var(--color-dark-teal);
   --theme-destructive: var(--color-orange-red);
   --theme-faded: var(--color-dark-grey);
 
@@ -26,7 +25,7 @@
 
 @media (prefers-color-scheme: light) {
   :root {
-    --theme-foreground: var(--color-black);
+    --theme-foreground: var(--color-dark-teal);
     --theme-background: var(--color-white);
     --theme-faded: var(--color-light-grey);
 
@@ -63,7 +62,7 @@ input {
   border: none;
   outline: none;
   background-color: #ffffff;
-  color: var(--color-black);
+  color: var(--color-dark-teal);
 }
 
 .button {
