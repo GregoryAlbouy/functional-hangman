@@ -277,16 +277,32 @@ viewFetchRandomWordButton =
 viewError : Maybe Http.Error -> Html Msg
 viewError error =
     let
-        message =
+        errorStr =
             case error of
                 Just (Http.BadStatus code) ->
-                    "Bad status: " ++ String.fromInt code
+                    "bad status: " ++ String.fromInt code
 
-                Just _ ->
-                    "Unhandled error"
+                Just (Http.BadUrl url) ->
+                    "bad url: " ++ url
+
+                Just Http.Timeout ->
+                    "timeout"
+
+                Just Http.NetworkError ->
+                    "network error"
+
+                Just (Http.BadBody body) ->
+                    "bad body: " ++ body
 
                 Nothing ->
                     ""
+
+        message =
+            if errorStr == "" then
+                ""
+
+            else
+                "HTTP Error: " ++ errorStr
     in
     div [] [ p [ style "color" "red" ] [ text message ] ]
 
