@@ -157,15 +157,13 @@ viewGame model =
             Engine.isStarted model.engine
     in
     div [ class "game-container" ]
-        [ div [] [ viewWord (Engine.wordRepr '_' model.engine) ]
-        , div []
-            [ viewChancesLeft
-                { gameState = Engine.state model.engine
-                , current = Engine.chancesLeft model.engine
-                , max = chancesByDifficulty model.menu.difficulty
-                }
-            ]
-        , div [] [ viewKeyboard isStarted model.engine.pickedLetters ]
+        [ viewWord (Engine.wordRepr '_' model.engine)
+        , viewChancesLeft
+            { gameState = Engine.state model.engine
+            , current = Engine.chancesLeft model.engine
+            , max = chancesByDifficulty model.menu.difficulty
+            }
+        , viewKeyboard isStarted model.engine.pickedLetters
         ]
 
 
