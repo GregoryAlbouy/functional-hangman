@@ -52,6 +52,7 @@ update msg model =
         startGame word =
             ( { model
                 | engine = Engine.init word (chancesByDifficulty model.menu.difficulty)
+                , menu = Menu.reset model.menu
               }
             , Cmd.none
             )

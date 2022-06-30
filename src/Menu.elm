@@ -1,4 +1,4 @@
-module Menu exposing (Difficulty(..), Model, Msg(..), State(..), initialModel, update, view, viewToggleButton, withDifficulty, withError, withInputWord, withState)
+module Menu exposing (Difficulty(..), Model, Msg(..), State(..), initialModel, reset, update, view, viewToggleButton, withDifficulty, withError, withInputWord, withState)
 
 import Alphabet
 import Constants
@@ -44,6 +44,15 @@ withInputWord wordInput model =
 withError : Maybe Http.Error -> Model -> Model
 withError error model =
     { model | error = error }
+
+
+reset : Model -> Model
+reset model =
+    { model
+        | state = Off
+        , inputWord = ""
+        , error = Nothing
+    }
 
 
 
@@ -97,20 +106,10 @@ update msg model =
             ( model |> withError (Just error), Cmd.none )
 
         GotHttpResponse (Ok _) ->
-            ( model
-                |> withError Nothing
-                |> withInputWord ""
-                |> withState Off
-            , Cmd.none
-            )
+            noop
 
         ClickCustom _ ->
-            ( model
-                |> withError Nothing
-                |> withInputWord ""
-                |> withState Off
-            , Cmd.none
-            )
+            noop
 
         ClickRandom ->
             ( model |> withError Nothing, fetchRandomWord )
