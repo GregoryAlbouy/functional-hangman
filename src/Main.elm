@@ -7,7 +7,6 @@ import Engine exposing (End(..), State(..))
 import Html exposing (Html, a, button, div, header, img, input, span, text)
 import Html.Attributes exposing (alt, class, classList, disabled, href, name, src, style, target)
 import Html.Events exposing (onClick)
-import Http
 import Json.Decode as D
 import Menu
 import Platform.Cmd exposing (Cmd)
@@ -29,26 +28,6 @@ initialModel =
     { engine = Engine.empty
     , menu = Menu.initialModel
     }
-
-
-withEngine : Engine.Model -> Model -> Model
-withEngine engine model =
-    { model | engine = engine }
-
-
-withMenuState : Menu.State -> Model -> Model
-withMenuState state model =
-    { model | menu = Menu.withState state model.menu }
-
-
-withInputWord : String -> Model -> Model
-withInputWord wordInput model =
-    { model | menu = Menu.withInputWord wordInput model.menu }
-
-
-withError : Maybe Http.Error -> Model -> Model
-withError error model =
-    { model | menu = Menu.withError error model.menu }
 
 
 
@@ -74,11 +53,9 @@ update msg model =
 
         startGame : String -> ( Model, Cmd Msg )
         startGame word =
-            ( model
-                |> withInputWord ""
-                |> withMenuState Menu.Off
-                |> withError Nothing
-                |> withEngine (Engine.init word (chancesByDifficulty model.menu.difficulty))
+            ( { model
+                | engine = Engine.init word (chancesByDifficulty model.menu.difficulty)
+              }
             , Cmd.none
             )
     in
@@ -99,7 +76,7 @@ update msg model =
 
         Pick letter ->
             if isValidLetter letter then
-                ( model |> withEngine (Engine.pickLetter (Char.toLower letter) model.engine)
+                ( { model | engine = Engine.pickLetter (Char.toLower letter) model.engine }
                 , Cmd.none
                 )
 

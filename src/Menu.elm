@@ -105,10 +105,20 @@ update msg model =
             ( model |> withError (Just error), Cmd.none )
 
         GotHttpResponse (Ok _) ->
-            noop
+            ( model
+                |> withError Nothing
+                |> withInputWord ""
+                |> withState Off
+            , Cmd.none
+            )
 
         ClickCustom _ ->
-            ( model |> withError Nothing, Cmd.none )
+            ( model
+                |> withError Nothing
+                |> withInputWord ""
+                |> withState Off
+            , Cmd.none
+            )
 
         ClickRandom ->
             ( model |> withError Nothing, fetchRandomWord )
