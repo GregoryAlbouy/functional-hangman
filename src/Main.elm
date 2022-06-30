@@ -4,11 +4,12 @@ import Browser
 import Browser.Events
 import Constants
 import Engine exposing (End(..), State(..))
-import Html exposing (Html, a, button, div, h2, h3, header, img, input, label, p, section, span, text)
-import Html.Attributes exposing (alt, class, classList, disabled, href, name, placeholder, src, style, target, type_, value)
-import Html.Events exposing (onClick, onInput)
+import Html exposing (Html, a, button, div, header, img, input, span, text)
+import Html.Attributes exposing (alt, class, classList, disabled, href, name, src, style, target)
+import Html.Events exposing (onClick)
 import Http
 import Json.Decode as D
+import Menu
 import Platform.Cmd exposing (Cmd)
 import Set exposing (Set)
 
@@ -19,20 +20,14 @@ import Set exposing (Set)
 
 type alias Model =
     { engine : Engine.Model
-    , menu : ToggleState
-    , difficulty : Difficulty
-    , wordInput : String
-    , error : Maybe Http.Error
+    , menu : Menu.Model
     }
 
 
 initialModel : Model
 initialModel =
     { engine = Engine.empty
-    , menu = On
-    , difficulty = Medium
-    , wordInput = ""
-    , error = Nothing
+    , menu = Menu.initialModel
     }
 
 
@@ -41,19 +36,24 @@ withEngine engine model =
     { model | engine = engine }
 
 
-withMenu : ToggleState -> Model -> Model
-withMenu state model =
-    { model | menu = state }
+withState : Menu.State -> Model -> Model
+withState state model =
+    { model | menu = Menu.withState state model.menu }
 
 
 withWordInput : String -> Model -> Model
 withWordInput wordInput model =
-    { model | wordInput = wordInput }
+    { model | menu = Menu.withWordInput wordInput model.menu }
+
+
+withDifficulty : Menu.Difficulty -> Model -> Model
+withDifficulty difficulty model =
+    { model | menu = Menu.withDifficulty difficulty model.menu }
 
 
 withError : Maybe Http.Error -> Model -> Model
 withError error model =
-    { model | error = error }
+    { model | menu = Menu.withError error model.menu }
 
 
 
@@ -70,25 +70,10 @@ alphabet =
 
 
 type Msg
-    = ToggleMenu ToggleState
-    | SetDifficulty Difficulty
-    | SetCustomWord String
-    | GotCustomWord String
-    | FetchRandomWord
+    = Pick Char
+    | GotMenuMsg Menu.Msg
     | GotRandomWord (Result Http.Error (List String))
-    | Pick Char
     | Noop
-
-
-type Difficulty
-    = Easy
-    | Medium
-    | Hard
-
-
-type ToggleState
-    = On
-    | Off
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -110,22 +95,36 @@ update msg model =
         startGame word =
             ( model
                 |> withWordInput ""
-                |> withMenu Off
+                |> withState Menu.Off
                 |> withError Nothing
-                |> withEngine (Engine.init word (chancesByDifficulty model.difficulty))
+                |> withEngine (Engine.init word (chancesByDifficulty model.menu.difficulty))
             , Cmd.none
             )
     in
     case msg of
-        FetchRandomWord ->
+        GotMenuMsg (Menu.Toggle state) ->
+            ( model |> withState state
+            , Cmd.none
+            )
+
+        GotMenuMsg Menu.ClickRandom ->
             ( model, fetchRandomWord )
 
-        SetCustomWord input ->
+        GotMenuMsg (Menu.SetCustomWord input) ->
             if isValidWord input then
                 ( model |> withWordInput (String.toLower input), Cmd.none )
 
             else
                 noop
+
+        GotMenuMsg (Menu.ClickCustom word) ->
+            startGame word
+
+        GotMenuMsg (Menu.SetDifficulty d) ->
+            ( model |> withDifficulty d, Cmd.none )
+
+        GotMenuMsg _ ->
+            noop
 
         GotRandomWord (Ok list) ->
             case List.head list of
@@ -138,9 +137,6 @@ update msg model =
         GotRandomWord (Err error) ->
             ( model |> withError (Just error), Cmd.none )
 
-        GotCustomWord word ->
-            startGame word
-
         Pick letter ->
             if isValidLetter letter then
                 ( model |> withEngine (Engine.pickLetter (Char.toLower letter) model.engine)
@@ -149,14 +145,6 @@ update msg model =
 
             else
                 noop
-
-        ToggleMenu state ->
-            ( model |> withMenu state
-            , Cmd.none
-            )
-
-        SetDifficulty d ->
-            ( { model | difficulty = d }, Cmd.none )
 
         Noop ->
             noop
@@ -185,7 +173,7 @@ toKey : Model -> String -> Msg
 toKey model input =
     case String.uncons input of
         Just ( char, "" ) ->
-            if model.menu == Off then
+            if model.menu.state == Menu.Off then
                 Pick char
 
             else
@@ -202,119 +190,21 @@ toKey model input =
 view : Model -> Html Msg
 view model =
     div [ class "hangman" ]
-        [ viewHeader model.menu
-        , viewMenu model.error model.wordInput model.menu model.difficulty
+        [ viewHeader model.menu.state
+        , Menu.view model.menu |> Html.map GotMenuMsg
         , viewGame model
         ]
 
 
-viewHeader : ToggleState -> Html Msg
+viewHeader : Menu.State -> Html Msg
 viewHeader menuState =
     header [ class "main-header" ]
-        [ viewMenuButton menuState
+        [ Menu.viewToggleButton menuState |> Html.map GotMenuMsg
         , div [ class "page-title" ] [ text "The Hangman Game" ]
         , viewExtLink
             { to = Constants.githubRepoUrl, className = "github" }
             [ viewImg "Github" "github-logo.svg" ]
         ]
-
-
-viewMenuButton : ToggleState -> Html Msg
-viewMenuButton state =
-    div
-        [ onClick (toggleMenu state)
-        , classList [ ( "burger-button", True ), ( "open", state == On ) ]
-        ]
-        [ div [ class "burger-button-bar" ] []
-        ]
-
-
-viewMenu : Maybe Http.Error -> String -> ToggleState -> Difficulty -> Html Msg
-viewMenu error wordInput state difficulty =
-    let
-        viewSection : String -> Html Msg -> Html Msg
-        viewSection title content =
-            section [] [ h3 [ class "section-title" ] [ text title ], content ]
-    in
-    div [ classList [ ( "overlay-blur", True ), ( "open", state == On ) ] ]
-        [ div [ class "menu" ]
-            [ header [ class "menu-header" ] [ h2 [] [ text "New Game" ] ]
-            , div [ class "menu-body" ]
-                [ viewSection "Difficulty" (viewSelectDifficulty difficulty)
-                , viewSection "2 players" (viewWordInput wordInput)
-                , viewSection "1 player" viewFetchRandomWordButton
-                , viewError error
-                ]
-            ]
-        ]
-
-
-viewSelectDifficulty : Difficulty -> Html Msg
-viewSelectDifficulty state =
-    let
-        viewChoice : ( String, Difficulty ) -> Html Msg
-        viewChoice ( label, current ) =
-            button
-                [ classList [ ( "button", True ), ( "checked", state == current ) ]
-                , onClick (SetDifficulty current)
-                ]
-                [ text label ]
-    in
-    [ ( "Easy", Easy ), ( "Medium", Medium ), ( "Hard", Hard ) ]
-        |> List.map viewChoice
-        |> div [ class "select-difficulty" ]
-
-
-viewWordInput : String -> Html Msg
-viewWordInput wordInput =
-    div [ class "word-input-container" ]
-        [ input
-            [ type_ "text"
-            , placeholder "Type a word..."
-            , onInput SetCustomWord
-            , value wordInput
-            ]
-            []
-        , viewButton (GotCustomWord wordInput) { content = "Go", className = "" }
-        ]
-
-
-viewFetchRandomWordButton : Html Msg
-viewFetchRandomWordButton =
-    viewButton FetchRandomWord { content = "Random word", className = "full-width" }
-
-
-viewError : Maybe Http.Error -> Html Msg
-viewError error =
-    let
-        errorStr =
-            case error of
-                Just (Http.BadStatus code) ->
-                    "bad status: " ++ String.fromInt code
-
-                Just (Http.BadUrl url) ->
-                    "bad url: " ++ url
-
-                Just Http.Timeout ->
-                    "timeout"
-
-                Just Http.NetworkError ->
-                    "network error"
-
-                Just (Http.BadBody body) ->
-                    "bad body: " ++ body
-
-                Nothing ->
-                    ""
-
-        message =
-            if errorStr == "" then
-                ""
-
-            else
-                "HTTP Error: " ++ errorStr
-    in
-    div [] [ p [ style "color" "red" ] [ text message ] ]
 
 
 viewGame : Model -> Html Msg
@@ -329,7 +219,7 @@ viewGame model =
             [ viewChancesLeft
                 { gameState = Engine.state model.engine
                 , current = Engine.chancesLeft model.engine
-                , max = chancesByDifficulty model.difficulty
+                , max = chancesByDifficulty model.menu.difficulty
                 }
             ]
         , div [] [ viewKeyboard isStarted model.engine.pickedLetters ]
@@ -396,11 +286,6 @@ viewWord engine =
     div [ class "word" ] (List.map toSpan <| Engine.wordRepr '_' <| engine)
 
 
-viewButton : msg -> { className : String, content : String } -> Html msg
-viewButton msg { className, content } =
-    button [ onClick msg, class ("button " ++ className) ] [ text content ]
-
-
 viewImg : String -> String -> Html msg
 viewImg name path =
     img [ alt name, src (imgPath path) ] []
@@ -424,16 +309,16 @@ charSetFromRange head tail =
         >> Set.fromList
 
 
-chancesByDifficulty : Difficulty -> Int
+chancesByDifficulty : Menu.Difficulty -> Int
 chancesByDifficulty difficulty =
     case difficulty of
-        Easy ->
+        Menu.Easy ->
             12
 
-        Medium ->
+        Menu.Medium ->
             9
 
-        Hard ->
+        Menu.Hard ->
             6
 
 
@@ -448,16 +333,6 @@ fetchRandomWord =
         { url = Constants.randomWordUrl
         , expect = Http.expectJson GotRandomWord (D.list D.string)
         }
-
-
-toggleMenu : ToggleState -> Msg
-toggleMenu state =
-    case state of
-        On ->
-            ToggleMenu Off
-
-        Off ->
-            ToggleMenu On
 
 
 imgPath : String -> String
