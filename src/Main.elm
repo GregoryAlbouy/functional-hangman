@@ -157,7 +157,7 @@ viewGame model =
             Engine.isStarted model.engine
     in
     div [ class "game-container" ]
-        [ div [] [ viewWord model.engine ]
+        [ div [] [ viewWord (Engine.wordRepr '_' model.engine) ]
         , div []
             [ viewChancesLeft
                 { gameState = Engine.state model.engine
@@ -219,14 +219,14 @@ viewChancesLeft { gameState, current, max } =
         ]
 
 
-viewWord : Engine.Model -> Html msg
-viewWord engine =
+viewWord : List Char -> Html msg
+viewWord letters =
     let
         toSpan : Char -> Html msg
         toSpan letter =
             span [ class "letter" ] [ charToTextNode letter ]
     in
-    div [ class "word" ] (List.map toSpan <| Engine.wordRepr '_' <| engine)
+    div [ class "word" ] (List.map toSpan letters)
 
 
 viewImg : String -> String -> Html msg
