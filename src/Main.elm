@@ -41,9 +41,9 @@ withMenuState state model =
     { model | menu = Menu.withState state model.menu }
 
 
-withWordInput : String -> Model -> Model
-withWordInput wordInput model =
-    { model | menu = Menu.withWordInput wordInput model.menu }
+withInputWord : String -> Model -> Model
+withInputWord wordInput model =
+    { model | menu = Menu.withInputWord wordInput model.menu }
 
 
 withError : Maybe Http.Error -> Model -> Model
@@ -75,7 +75,7 @@ update msg model =
         startGame : String -> ( Model, Cmd Msg )
         startGame word =
             ( model
-                |> withWordInput ""
+                |> withInputWord ""
                 |> withMenuState Menu.Off
                 |> withError Nothing
                 |> withEngine (Engine.init word (chancesByDifficulty model.menu.difficulty))

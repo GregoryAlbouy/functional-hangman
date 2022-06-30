@@ -1,4 +1,4 @@
-module Menu exposing (Difficulty(..), Model, Msg(..), State(..), initialModel, update, view, viewToggleButton, withDifficulty, withError, withState, withWordInput)
+module Menu exposing (Difficulty(..), Model, Msg(..), State(..), initialModel, update, view, viewToggleButton, withDifficulty, withError, withInputWord, withState)
 
 import Constants
 import Html exposing (Html, button, div, h2, h3, header, input, p, section, text)
@@ -12,7 +12,7 @@ import Set
 type alias Model =
     { state : State
     , difficulty : Difficulty
-    , wordInput : String
+    , inputWord : String
     , error : Maybe Http.Error
     }
 
@@ -21,7 +21,7 @@ initialModel : Model
 initialModel =
     { state = On
     , difficulty = Medium
-    , wordInput = ""
+    , inputWord = ""
     , error = Nothing
     }
 
@@ -36,9 +36,9 @@ withDifficulty difficulty model =
     { model | difficulty = difficulty }
 
 
-withWordInput : String -> Model -> Model
-withWordInput wordInput model =
-    { model | wordInput = wordInput }
+withInputWord : String -> Model -> Model
+withInputWord wordInput model =
+    { model | inputWord = wordInput }
 
 
 withError : Maybe Http.Error -> Model -> Model
@@ -64,7 +64,7 @@ type State
 type Msg
     = Toggle State
     | SetDifficulty Difficulty
-    | SetCustomWord String
+    | SetInputWord String
     | ClickCustom String
     | ClickRandom
     | GotRandomWord (Result Http.Error (List String))
@@ -94,9 +94,9 @@ update msg model =
         SetDifficulty d ->
             ( model |> withDifficulty d, Cmd.none )
 
-        SetCustomWord input ->
+        SetInputWord input ->
             if isValidWord input then
-                ( model |> withWordInput (String.toLower input), Cmd.none )
+                ( model |> withInputWord (String.toLower input), Cmd.none )
 
             else
                 noop
@@ -119,7 +119,7 @@ update msg model =
 
 
 view : Model -> Html Msg
-view { state, difficulty, wordInput, error } =
+view { state, difficulty, inputWord, error } =
     let
         viewSection : String -> Html Msg -> Html Msg
         viewSection title content =
@@ -130,7 +130,7 @@ view { state, difficulty, wordInput, error } =
             [ header [ class "menu-header" ] [ h2 [] [ text "New Game" ] ]
             , div [ class "menu-body" ]
                 [ viewSection "Difficulty" (viewSelectDifficulty difficulty)
-                , viewSection "2 players" (viewWordInput wordInput)
+                , viewSection "2 players" (viewWordInput inputWord)
                 , viewSection "1 player" viewFetchRandomWordButton
                 , viewError error
                 ]
@@ -170,7 +170,7 @@ viewWordInput wordInput =
         [ input
             [ type_ "text"
             , placeholder "Type a word..."
-            , onInput SetCustomWord
+            , onInput SetInputWord
             , value wordInput
             ]
             []
