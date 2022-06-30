@@ -86,7 +86,7 @@ update msg model =
         GotMenuMsg (Menu.ClickCustom word) ->
             startGame word
 
-        GotMenuMsg (Menu.GotRandomWord (Ok list)) ->
+        GotMenuMsg (Menu.GotHttpResponse (Ok list)) ->
             case List.head list of
                 Just word ->
                     startGame word

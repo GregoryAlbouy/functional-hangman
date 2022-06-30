@@ -67,7 +67,7 @@ type Msg
     | SetInputWord String
     | ClickCustom String
     | ClickRandom
-    | GotRandomWord (Result Http.Error (List String))
+    | GotHttpResponse (Result Http.Error (List String))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -101,10 +101,10 @@ update msg model =
             else
                 noop
 
-        GotRandomWord (Err error) ->
+        GotHttpResponse (Err error) ->
             ( model |> withError (Just error), Cmd.none )
 
-        GotRandomWord (Ok _) ->
+        GotHttpResponse (Ok _) ->
             noop
 
         ClickCustom _ ->
@@ -239,5 +239,5 @@ fetchRandomWord : Cmd Msg
 fetchRandomWord =
     Http.get
         { url = Constants.randomWordUrl
-        , expect = Http.expectJson GotRandomWord (D.list D.string)
+        , expect = Http.expectJson GotHttpResponse (D.list D.string)
         }
