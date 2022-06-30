@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import Alphabet
 import Browser
 import Browser.Events
 import Constants
@@ -47,10 +48,6 @@ update msg model =
         noop =
             ( model, Cmd.none )
 
-        isValidLetter : Char -> Bool
-        isValidLetter letter =
-            Set.member (Char.toLower letter) Constants.alphabet
-
         startGame : String -> ( Model, Cmd Msg )
         startGame word =
             ( { model
@@ -75,7 +72,7 @@ update msg model =
             updateMenu menuMsg model
 
         Pick letter ->
-            if isValidLetter letter then
+            if Alphabet.isValidLetter letter then
                 ( { model | engine = Engine.pickLetter (Char.toLower letter) model.engine }
                 , Cmd.none
                 )
@@ -188,7 +185,7 @@ viewKeyboard isActive pickedLetters =
                 ]
                 [ charToTextNode letter ]
     in
-    div [ class "keyboard" ] (List.map toButton (Set.toList Constants.alphabet))
+    div [ class "keyboard" ] (List.map toButton (Set.toList Alphabet.alphabet))
 
 
 viewChancesLeft : { gameState : Engine.State, current : Int, max : Int } -> Html msg

@@ -1,12 +1,12 @@
 module Menu exposing (Difficulty(..), Model, Msg(..), State(..), initialModel, update, view, viewToggleButton, withDifficulty, withError, withInputWord, withState)
 
+import Alphabet
 import Constants
 import Html exposing (Html, button, div, h2, h3, header, input, p, section, text)
 import Html.Attributes exposing (class, classList, placeholder, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as D
-import Set
 
 
 type alias Model =
@@ -76,14 +76,6 @@ update msg model =
         noop : ( Model, Cmd Msg )
         noop =
             ( model, Cmd.none )
-
-        isValidLetter : Char -> Bool
-        isValidLetter letter =
-            Set.member (Char.toLower letter) Constants.alphabet
-
-        isValidWord : String -> Bool
-        isValidWord wordInput =
-            List.all isValidLetter (String.toList wordInput)
     in
     case msg of
         Toggle state ->
@@ -95,7 +87,7 @@ update msg model =
             ( model |> withDifficulty d, Cmd.none )
 
         SetInputWord input ->
-            if isValidWord input then
+            if Alphabet.isValidWord input then
                 ( model |> withInputWord (String.toLower input), Cmd.none )
 
             else
