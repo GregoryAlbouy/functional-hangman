@@ -1,9 +1,11 @@
-module Menu exposing (Difficulty(..), Model, Msg(..), State(..), initialModel, view, viewToggleButton, withDifficulty, withError, withState, withWordInput)
+module Menu exposing (Difficulty(..), Model, Msg(..), State(..), initialModel, update, view, viewToggleButton, withDifficulty, withError, withState, withWordInput)
 
+import Constants
 import Html exposing (Html, button, div, h2, h3, header, input, p, section, text)
 import Html.Attributes exposing (class, classList, placeholder, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
+import Set
 
 
 type alias Model =
@@ -43,6 +45,10 @@ withError error model =
     { model | error = error }
 
 
+
+--UPDATE
+
+
 type Difficulty
     = Easy
     | Medium
@@ -55,12 +61,53 @@ type State
 
 
 type Msg
-    = SetDifficulty Difficulty
+    = Toggle State
+    | SetDifficulty Difficulty
     | SetCustomWord String
     | ClickCustom String
     | ClickRandom
-    | Toggle State
-    | Noop
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    let
+        noop : ( Model, Cmd Msg )
+        noop =
+            ( model, Cmd.none )
+
+        isValidLetter : Char -> Bool
+        isValidLetter letter =
+            Set.member (Char.toLower letter) Constants.alphabet
+
+        isValidWord : String -> Bool
+        isValidWord wordInput =
+            List.all isValidLetter (String.toList wordInput)
+    in
+    case msg of
+        Toggle state ->
+            ( model |> withState state
+            , Cmd.none
+            )
+
+        SetDifficulty d ->
+            ( model |> withDifficulty d, Cmd.none )
+
+        SetCustomWord input ->
+            if isValidWord input then
+                ( model |> withWordInput (String.toLower input), Cmd.none )
+
+            else
+                noop
+
+        ClickCustom _ ->
+            noop
+
+        ClickRandom ->
+            noop
+
+
+
+-- VIEW
 
 
 view : Model -> Html Msg

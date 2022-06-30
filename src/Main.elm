@@ -36,8 +36,8 @@ withEngine engine model =
     { model | engine = engine }
 
 
-withState : Menu.State -> Model -> Model
-withState state model =
+withMenuState : Menu.State -> Model -> Model
+withMenuState state model =
     { model | menu = Menu.withState state model.menu }
 
 
@@ -46,23 +46,9 @@ withWordInput wordInput model =
     { model | menu = Menu.withWordInput wordInput model.menu }
 
 
-withDifficulty : Menu.Difficulty -> Model -> Model
-withDifficulty difficulty model =
-    { model | menu = Menu.withDifficulty difficulty model.menu }
-
-
 withError : Maybe Http.Error -> Model -> Model
 withError error model =
     { model | menu = Menu.withError error model.menu }
-
-
-
--- CONSTANTS
-
-
-alphabet : Set Char
-alphabet =
-    charSetFromRange 'a' 'z'
 
 
 
@@ -85,46 +71,31 @@ update msg model =
 
         isValidLetter : Char -> Bool
         isValidLetter letter =
-            Set.member (Char.toLower letter) alphabet
-
-        isValidWord : String -> Bool
-        isValidWord wordInput =
-            List.all isValidLetter (String.toList wordInput)
+            Set.member (Char.toLower letter) Constants.alphabet
 
         startGame : String -> ( Model, Cmd Msg )
         startGame word =
             ( model
                 |> withWordInput ""
-                |> withState Menu.Off
+                |> withMenuState Menu.Off
                 |> withError Nothing
                 |> withEngine (Engine.init word (chancesByDifficulty model.menu.difficulty))
             , Cmd.none
             )
+
+        toMenu : ( Menu.Model, Cmd Menu.Msg ) -> ( Model, Cmd Msg )
+        toMenu ( menuModel, menuCmd ) =
+            ( { model | menu = menuModel }, Cmd.none )
     in
     case msg of
-        GotMenuMsg (Menu.Toggle state) ->
-            ( model |> withState state
-            , Cmd.none
-            )
+        GotMenuMsg (Menu.ClickCustom word) ->
+            startGame word
 
         GotMenuMsg Menu.ClickRandom ->
             ( model, fetchRandomWord )
 
-        GotMenuMsg (Menu.SetCustomWord input) ->
-            if isValidWord input then
-                ( model |> withWordInput (String.toLower input), Cmd.none )
-
-            else
-                noop
-
-        GotMenuMsg (Menu.ClickCustom word) ->
-            startGame word
-
-        GotMenuMsg (Menu.SetDifficulty d) ->
-            ( model |> withDifficulty d, Cmd.none )
-
-        GotMenuMsg _ ->
-            noop
+        GotMenuMsg menuMsg ->
+            toMenu (Menu.update menuMsg model.menu)
 
         GotRandomWord (Ok list) ->
             case List.head list of
@@ -242,7 +213,7 @@ viewKeyboard isActive pickedLetters =
                 ]
                 [ charToTextNode letter ]
     in
-    div [ class "keyboard" ] (List.map toButton (Set.toList alphabet))
+    div [ class "keyboard" ] (List.map toButton (Set.toList Constants.alphabet))
 
 
 viewChancesLeft : { gameState : Engine.State, current : Int, max : Int } -> Html msg
@@ -298,15 +269,6 @@ viewExtLink { className, to } content =
 
 
 -- HELPERS
-
-
-charSetFromRange : Char -> Char -> Set Char
-charSetFromRange head tail =
-    tail
-        |> Char.toCode
-        >> List.range (Char.toCode head)
-        >> List.map Char.fromCode
-        >> Set.fromList
 
 
 chancesByDifficulty : Menu.Difficulty -> Int
