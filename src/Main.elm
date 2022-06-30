@@ -58,7 +58,6 @@ withError error model =
 type Msg
     = Pick Char
     | GotMenuMsg Menu.Msg
-    | GotRandomWord (Result Http.Error (List String))
     | Noop
 
 
@@ -82,22 +81,12 @@ update msg model =
                 |> withEngine (Engine.init word (chancesByDifficulty model.menu.difficulty))
             , Cmd.none
             )
-
-        toMenu : ( Menu.Model, Cmd Menu.Msg ) -> ( Model, Cmd Msg )
-        toMenu ( menuModel, menuCmd ) =
-            ( { model | menu = menuModel }, Cmd.none )
     in
     case msg of
         GotMenuMsg (Menu.ClickCustom word) ->
             startGame word
 
-        GotMenuMsg Menu.ClickRandom ->
-            ( model, fetchRandomWord )
-
-        GotMenuMsg menuMsg ->
-            toMenu (Menu.update menuMsg model.menu)
-
-        GotRandomWord (Ok list) ->
+        GotMenuMsg (Menu.GotRandomWord (Ok list)) ->
             case List.head list of
                 Just word ->
                     startGame word
@@ -105,8 +94,8 @@ update msg model =
                 Nothing ->
                     noop
 
-        GotRandomWord (Err error) ->
-            ( model |> withError (Just error), Cmd.none )
+        GotMenuMsg menuMsg ->
+            updateMenu menuMsg model
 
         Pick letter ->
             if isValidLetter letter then
@@ -119,6 +108,15 @@ update msg model =
 
         Noop ->
             noop
+
+
+updateMenu : Menu.Msg -> Model -> ( Model, Cmd Msg )
+updateMenu menuMsg model =
+    let
+        ( menuModel, menuCmd ) =
+            Menu.update menuMsg model.menu
+    in
+    ( { model | menu = menuModel }, Cmd.map GotMenuMsg menuCmd )
 
 
 
@@ -287,14 +285,6 @@ chancesByDifficulty difficulty =
 charToTextNode : Char -> Html msg
 charToTextNode char =
     text (String.fromChar char)
-
-
-fetchRandomWord : Cmd Msg
-fetchRandomWord =
-    Http.get
-        { url = Constants.randomWordUrl
-        , expect = Http.expectJson GotRandomWord (D.list D.string)
-        }
 
 
 imgPath : String -> String

@@ -5,6 +5,7 @@ import Html exposing (Html, button, div, h2, h3, header, input, p, section, text
 import Html.Attributes exposing (class, classList, placeholder, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
+import Json.Decode as D
 import Set
 
 
@@ -66,6 +67,7 @@ type Msg
     | SetCustomWord String
     | ClickCustom String
     | ClickRandom
+    | GotRandomWord (Result Http.Error (List String))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -99,11 +101,17 @@ update msg model =
             else
                 noop
 
-        ClickCustom _ ->
+        GotRandomWord (Err error) ->
+            ( model |> withError (Just error), Cmd.none )
+
+        GotRandomWord (Ok _) ->
             noop
 
+        ClickCustom _ ->
+            ( model |> withError Nothing, Cmd.none )
+
         ClickRandom ->
-            noop
+            ( model |> withError Nothing, fetchRandomWord )
 
 
 
@@ -225,3 +233,11 @@ toggleMenu state =
 
         Off ->
             Toggle On
+
+
+fetchRandomWord : Cmd Msg
+fetchRandomWord =
+    Http.get
+        { url = Constants.randomWordUrl
+        , expect = Http.expectJson GotRandomWord (D.list D.string)
+        }
