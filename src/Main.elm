@@ -1,17 +1,13 @@
 module Main exposing (Model, Msg, main)
 
-import Alphabet
 import Browser
-import Browser.Events
 import Constants
-import Game.Engine exposing (End(..), State(..))
-import Html exposing (Html, a, button, div, header, img, span, text)
-import Html.Attributes exposing (alt, class, classList, disabled, href, src, style, target)
-import Html.Events exposing (onClick)
-import Json.Decode as D
+import Game exposing (Model, initialModel)
+import Html exposing (Html, a, div, header, img, text)
+import Html.Attributes exposing (alt, class, href, src, target)
 import Menu
 import Platform.Cmd exposing (Cmd)
-import Set exposing (Set)
+import Toggle
 
 
 
@@ -19,16 +15,26 @@ import Set exposing (Set)
 
 
 type alias Model =
-    { engine : Game.Engine.Model
+    { game : Game.Model
     , menu : Menu.Model
     }
 
 
 initialModel : Model
 initialModel =
-    { engine = Game.Engine.empty
+    { game = Game.initialModel
     , menu = Menu.initialModel
     }
+
+
+withGame : Game.Model -> Model -> Model
+withGame game model =
+    { model | game = game }
+
+
+withMenu : Menu.Model -> Model -> Model
+withMenu menu model =
+    { model | menu = menu }
 
 
 
@@ -36,8 +42,8 @@ initialModel =
 
 
 type Msg
-    = Pick Char
-    | GotMenuMsg Menu.Msg
+    = GotMenuMsg Menu.Msg
+    | GotGameMsg Game.Msg
     | Noop
 
 
@@ -50,10 +56,9 @@ update msg model =
 
         startGame : String -> ( Model, Cmd Msg )
         startGame word =
-            ( { model
-                | engine = Game.Engine.init word (chancesByDifficulty model.menu.difficulty)
-                , menu = Menu.reset model.menu
-              }
+            ( model
+                |> withGame (Game.init word (chancesByDifficulty model.menu.difficulty))
+                |> withMenu (Menu.reset model.menu)
             , Cmd.none
             )
     in
@@ -69,17 +74,21 @@ update msg model =
                 Nothing ->
                     noop
 
+        GotMenuMsg ((Menu.ToggleMenu menuState) as menuMsg) ->
+            let
+                gameNewState : Toggle.State
+                gameNewState =
+                    Toggle.toggle menuState
+            in
+            model
+                |> withGame (Game.withState gameNewState model.game)
+                |> updateMenu menuMsg
+
         GotMenuMsg menuMsg ->
             updateMenu menuMsg model
 
-        Pick letter ->
-            if Alphabet.isValidLetter letter then
-                ( { model | engine = Game.Engine.pickLetter (Char.toLower letter) model.engine }
-                , Cmd.none
-                )
-
-            else
-                noop
+        GotGameMsg gameMsg ->
+            updateGame gameMsg model
 
         Noop ->
             noop
@@ -94,37 +103,22 @@ updateMenu menuMsg model =
     ( { model | menu = menuModel }, Cmd.map GotMenuMsg menuCmd )
 
 
+updateGame : Game.Msg -> Model -> ( Model, Cmd Msg )
+updateGame gameMsg model =
+    let
+        ( gameModel, gameCmd ) =
+            Game.update gameMsg model.game
+    in
+    ( { model | game = gameModel }, Cmd.map GotGameMsg gameCmd )
+
+
 
 -- SUBSCRIPTIONS
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-    listenKeyboardEvents model
-
-
-listenKeyboardEvents : Model -> Sub Msg
-listenKeyboardEvents model =
-    Browser.Events.onKeyUp (decodeKey model)
-
-
-decodeKey : Model -> D.Decoder Msg
-decodeKey model =
-    D.map (toKey model) (D.field "key" D.string)
-
-
-toKey : Model -> String -> Msg
-toKey model input =
-    case String.uncons input of
-        Just ( char, "" ) ->
-            if model.menu.state == Menu.Off then
-                Pick char
-
-            else
-                Noop
-
-        _ ->
-            Noop
+subscriptions _ =
+    Sub.map GotGameMsg Game.listenKeyboardEvents
 
 
 
@@ -136,7 +130,7 @@ view model =
     div [ class "hangman" ]
         [ viewHeader model.menu.state
         , Menu.view model.menu |> Html.map GotMenuMsg
-        , viewGame model
+        , Game.view model.game |> Html.map GotGameMsg
         ]
 
 
@@ -149,84 +143,6 @@ viewHeader menuState =
             { to = Constants.githubRepoUrl, className = "github" }
             [ viewImg "Github" "github-logo.svg" ]
         ]
-
-
-viewGame : Model -> Html Msg
-viewGame model =
-    let
-        isStarted : Bool
-        isStarted =
-            Game.Engine.isStarted model.engine
-    in
-    div [ class "game-container" ]
-        [ viewWord (Game.Engine.wordRepr '_' model.engine)
-        , viewChancesLeft
-            { gameState = Game.Engine.state model.engine
-            , current = Game.Engine.chancesLeft model.engine
-            , max = chancesByDifficulty model.menu.difficulty
-            }
-        , viewKeyboard isStarted model.engine.pickedLetters
-        ]
-
-
-viewKeyboard : Bool -> Set Char -> Html Msg
-viewKeyboard isActive pickedLetters =
-    let
-        isPicked : Char -> Bool
-        isPicked letter =
-            Set.member letter pickedLetters
-
-        toButton : Char -> Html Msg
-        toButton letter =
-            button
-                [ onClick (Pick letter)
-                , class "letter button"
-                , disabled (isPicked letter || not isActive)
-                ]
-                [ charToTextNode letter ]
-    in
-    div [ class "keyboard" ] (List.map toButton (Set.toList Alphabet.alphabet))
-
-
-viewChancesLeft : { gameState : Game.Engine.State, current : Int, max : Int } -> Html msg
-viewChancesLeft { gameState, current, max } =
-    let
-        ( className, ratio ) =
-            case gameState of
-                NotStarted ->
-                    ( "", 0 )
-
-                Ended Victory ->
-                    ( "victory", 1 )
-
-                Ended Defeat ->
-                    ( "defeat", 1 )
-
-                Running ->
-                    ( ""
-                    , toFloat (max - current)
-                        / toFloat max
-                    )
-    in
-    div [ class "chances" ]
-        [ div [ class "container" ]
-            [ div
-                [ classList [ ( "bar", True ), ( className, True ) ]
-                , style "transform" ("scaleX(" ++ String.fromFloat ratio ++ ")")
-                ]
-                []
-            ]
-        ]
-
-
-viewWord : List Char -> Html msg
-viewWord letters =
-    let
-        toSpan : Char -> Html msg
-        toSpan letter =
-            span [ class "letter" ] [ charToTextNode letter ]
-    in
-    div [ class "word" ] (List.map toSpan letters)
 
 
 viewImg : String -> String -> Html msg
@@ -254,11 +170,6 @@ chancesByDifficulty difficulty =
 
         Menu.Hard ->
             6
-
-
-charToTextNode : Char -> Html msg
-charToTextNode char =
-    text (String.fromChar char)
 
 
 imgPath : String -> String
