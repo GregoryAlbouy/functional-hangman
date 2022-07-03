@@ -2,7 +2,7 @@ module Main exposing (Model, Msg, main)
 
 import Browser
 import Constants
-import Game exposing (Model, initialModel)
+import Game
 import Html exposing (Html, a, div, header, img, text)
 import Html.Attributes exposing (alt, class, href, src, target)
 import Menu
@@ -44,16 +44,11 @@ withMenu menu model =
 type Msg
     = GotMenuMsg Menu.Msg
     | GotGameMsg Game.Msg
-    | Noop
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
-        noop : ( Model, Cmd Msg )
-        noop =
-            ( model, Cmd.none )
-
         startGame : String -> ( Model, Cmd Msg )
         startGame word =
             ( model
@@ -72,7 +67,7 @@ update msg model =
                     startGame word
 
                 Nothing ->
-                    noop
+                    ( model, Cmd.none )
 
         GotMenuMsg ((Menu.ToggleMenu menuState) as menuMsg) ->
             let
@@ -89,9 +84,6 @@ update msg model =
 
         GotGameMsg gameMsg ->
             updateGame gameMsg model
-
-        Noop ->
-            noop
 
 
 updateMenu : Menu.Msg -> Model -> ( Model, Cmd Msg )
