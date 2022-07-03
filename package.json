@@ -13,6 +13,8 @@
     "clear": "rm -rf ./elm-stuff/* ./build/*"
   },
   "devDependencies": {
+    "elm-format": "^0.8.5",
+    "elm-review": "^2.7.2",
     "elm-test": "^0.19.1-revision8",
     "elm-watch": "^1.0.0-beta.11",
     "static-server": "^2.2.1"
