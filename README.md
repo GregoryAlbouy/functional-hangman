@@ -21,11 +21,14 @@ yarn && yarn dev
 
 ### Scripts
 
-| Command           | Effect                                     |
-| ----------------- | ------------------------------------------ |
-| `yarn`            | Installs dependencies                      |
-| `yarn dev`        | Runs dev server on port 9999 (with HMR)    |
-| `yarn build`      | Builds Elm source files to `build/main.js` |
-| `yarn clear`      | Clears build outputs                       |
-| `yarn test`       | Runs Elm test suites                       |
-| `yarn test:watch` | Runs Elm test suites in watch mode         |
+| Command           | Effect                                         |
+| ----------------- | ---------------------------------------------- |
+| `yarn`            | Installs dependencies                          |
+| `yarn dev`        | Runs dev server on port 9999 (with HMR)        |
+| `yarn build`      | Builds Elm source files to `build/main.js`     |
+| `yarn clear`      | Clears build outputs                           |
+| `yarn test`       | Runs Elm test suites                           |
+| `yarn test:watch` | Runs Elm test suites in watch mode             |
+| `yarn lint`       | Runs linters on Elm source files               |
+| `yarn lint:watch` | Runs linters on Elm source files in watch mode |
+| `yarn checkall`   | Runs linters and test suites                   |
