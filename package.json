@@ -8,6 +8,8 @@
   "scripts": {
     "dev": "elm-watch hot & static-server -p 9999 .",
     "build": "elm-watch make --optimize",
+    "lint": "elm-format ./src --validate && elm-review",
+    "lint:watch": "elm-review --watch",
     "test": "elm-test",
     "test:watch": "elm-test --watch",
     "clear": "rm -rf ./elm-stuff/* ./build/*"
