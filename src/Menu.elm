@@ -1,4 +1,4 @@
-module Menu exposing (Difficulty(..), Model, Msg(..), State(..), initialModel, reset, update, view, viewToggleButton)
+module Menu exposing (Difficulty(..), Model, Msg(..), State, initialModel, reset, update, view, viewToggleButton)
 
 import Alphabet
 import Constants
@@ -7,6 +7,7 @@ import Html.Attributes exposing (class, classList, placeholder, style, type_, va
 import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as D
+import Toggle
 
 
 type alias Model =
@@ -19,7 +20,7 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-    { state = On
+    { state = Toggle.On
     , difficulty = Medium
     , inputWord = ""
     , error = Nothing
@@ -49,7 +50,7 @@ withError error model =
 reset : Model -> Model
 reset model =
     { model
-        | state = Off
+        | state = Toggle.Off
         , inputWord = ""
         , error = Nothing
     }
@@ -59,19 +60,18 @@ reset model =
 --UPDATE
 
 
+type alias State =
+    Toggle.State
+
+
 type Difficulty
     = Easy
     | Medium
     | Hard
 
 
-type State
-    = On
-    | Off
-
-
 type Msg
-    = Toggle State
+    = ToggleMenu Toggle.State
     | SetDifficulty Difficulty
     | SetInputWord String
     | ClickCustom String
@@ -87,7 +87,7 @@ update msg model =
             ( model, Cmd.none )
     in
     case msg of
-        Toggle state ->
+        ToggleMenu state ->
             ( model |> withState state
             , Cmd.none
             )
@@ -126,7 +126,7 @@ view { state, difficulty, inputWord, error } =
         viewSection title content =
             section [] [ h3 [ class "section-title" ] [ text title ], content ]
     in
-    div [ classList [ ( "overlay-blur", True ), ( "open", state == On ) ] ]
+    div [ classList [ ( "overlay-blur", True ), ( "open", state == Toggle.On ) ] ]
         [ div [ class "menu" ]
             [ header [ class "menu-header" ] [ h2 [] [ text "New Game" ] ]
             , div [ class "menu-body" ]
@@ -140,10 +140,10 @@ view { state, difficulty, inputWord, error } =
 
 
 viewToggleButton : State -> Html Msg
-viewToggleButton state =
+viewToggleButton currentState =
     div
-        [ onClick (toggleMenu state)
-        , classList [ ( "burger-button", True ), ( "open", state == On ) ]
+        [ onClick (ToggleMenu (Toggle.toggle currentState))
+        , classList [ ( "burger-button", True ), ( "open", currentState == Toggle.On ) ]
         ]
         [ div [ class "burger-button-bar" ] []
         ]
@@ -226,16 +226,6 @@ viewButton msg { className, content } =
 
 
 -- HELPERS
-
-
-toggleMenu : State -> Msg
-toggleMenu state =
-    case state of
-        On ->
-            Toggle Off
-
-        Off ->
-            Toggle On
 
 
 fetchRandomWord : Cmd Msg
