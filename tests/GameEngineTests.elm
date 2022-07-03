@@ -1,7 +1,7 @@
-module EngineTests exposing (testGetRemainingTries, testGetWordRepr, testIsLost, testIsOver, testIsStarted, testIsWon, testPickLetter, testState)
+module GameEngineTests exposing (testGetRemainingTries, testGetWordRepr, testIsLost, testIsOver, testIsStarted, testIsWon, testPickLetter, testState)
 
-import Engine exposing (End(..), Model, State(..), chancesLeft, init, isLetterPicked, isLost, isOver, isStarted, isWon, pickLetter, state, wordRepr)
 import Expect
+import Game.Engine exposing (End(..), Model, State(..), chancesLeft, init, isLetterPicked, isLost, isOver, isStarted, isWon, pickLetter, state, wordRepr)
 import Test exposing (Test, describe, test)
 
 
@@ -38,7 +38,7 @@ wonModel =
 testState : Test
 testState =
     [ { name = "empty -> NotStarted"
-      , model = Engine.empty
+      , model = Game.Engine.empty
       , exp = Expect.equal NotStarted
       }
     , { name = "init -> Running"
@@ -60,7 +60,7 @@ testState =
 testIsStarted : Test
 testIsStarted =
     [ { name = "empty is not started"
-      , model = Engine.empty
+      , model = Game.Engine.empty
       , exp = Expect.false ""
       }
     , { name = "init is started"
@@ -82,7 +82,7 @@ testIsStarted =
 testIsWon : Test
 testIsWon =
     [ { name = "empty is not won"
-      , model = Engine.empty
+      , model = Game.Engine.empty
       , exp = Expect.false ""
       }
     , { name = "init is not won"
@@ -104,7 +104,7 @@ testIsWon =
 testIsLost : Test
 testIsLost =
     [ { name = "empty is not lost"
-      , model = Engine.empty
+      , model = Game.Engine.empty
       , exp = Expect.false ""
       }
     , { name = "init is not lost"
@@ -126,7 +126,7 @@ testIsLost =
 testIsOver : Test
 testIsOver =
     [ { name = "empty is not over"
-      , model = Engine.empty
+      , model = Game.Engine.empty
       , exp = Expect.false ""
       }
     , { name = "init is not over"
@@ -229,7 +229,7 @@ testGetWordRepr =
       , exp = Expect.equalLists [ 'h', 'e', 'l', 'l', 'o' ]
       }
     , { name = "returns empty set for empty model"
-      , model = Engine.empty
+      , model = Game.Engine.empty
       , exp = Expect.equalLists []
       }
     ]

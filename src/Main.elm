@@ -4,7 +4,7 @@ import Alphabet
 import Browser
 import Browser.Events
 import Constants
-import Engine exposing (End(..), State(..))
+import Game.Engine exposing (End(..), State(..))
 import Html exposing (Html, a, button, div, header, img, span, text)
 import Html.Attributes exposing (alt, class, classList, disabled, href, src, style, target)
 import Html.Events exposing (onClick)
@@ -19,14 +19,14 @@ import Set exposing (Set)
 
 
 type alias Model =
-    { engine : Engine.Model
+    { engine : Game.Engine.Model
     , menu : Menu.Model
     }
 
 
 initialModel : Model
 initialModel =
-    { engine = Engine.empty
+    { engine = Game.Engine.empty
     , menu = Menu.initialModel
     }
 
@@ -51,7 +51,7 @@ update msg model =
         startGame : String -> ( Model, Cmd Msg )
         startGame word =
             ( { model
-                | engine = Engine.init word (chancesByDifficulty model.menu.difficulty)
+                | engine = Game.Engine.init word (chancesByDifficulty model.menu.difficulty)
                 , menu = Menu.reset model.menu
               }
             , Cmd.none
@@ -74,7 +74,7 @@ update msg model =
 
         Pick letter ->
             if Alphabet.isValidLetter letter then
-                ( { model | engine = Engine.pickLetter (Char.toLower letter) model.engine }
+                ( { model | engine = Game.Engine.pickLetter (Char.toLower letter) model.engine }
                 , Cmd.none
                 )
 
@@ -156,13 +156,13 @@ viewGame model =
     let
         isStarted : Bool
         isStarted =
-            Engine.isStarted model.engine
+            Game.Engine.isStarted model.engine
     in
     div [ class "game-container" ]
-        [ viewWord (Engine.wordRepr '_' model.engine)
+        [ viewWord (Game.Engine.wordRepr '_' model.engine)
         , viewChancesLeft
-            { gameState = Engine.state model.engine
-            , current = Engine.chancesLeft model.engine
+            { gameState = Game.Engine.state model.engine
+            , current = Game.Engine.chancesLeft model.engine
             , max = chancesByDifficulty model.menu.difficulty
             }
         , viewKeyboard isStarted model.engine.pickedLetters
@@ -188,7 +188,7 @@ viewKeyboard isActive pickedLetters =
     div [ class "keyboard" ] (List.map toButton (Set.toList Alphabet.alphabet))
 
 
-viewChancesLeft : { gameState : Engine.State, current : Int, max : Int } -> Html msg
+viewChancesLeft : { gameState : Game.Engine.State, current : Int, max : Int } -> Html msg
 viewChancesLeft { gameState, current, max } =
     let
         ( className, ratio ) =
