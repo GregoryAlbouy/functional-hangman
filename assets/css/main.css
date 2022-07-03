@@ -399,25 +399,73 @@ input {
   text-transform: uppercase;
 }
 
+.chances {
+  position: relative;
+}
+
+.chances::before {
+  content: "";
+  position: absolute;
+  top: -0.9rem;
+  left: 0;
+  width: 100%;
+  opacity: 0;
+  font-size: 2rem;
+  letter-spacing: 0.2rem;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.chances.over::before {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 400ms 800ms;
+}
+
+.chances.victory::before {
+  content: "victory";
+  color: var(--theme-valid);
+}
+
+.chances.defeat::before {
+  content: "defeat";
+  color: var(--theme-destructive);
+}
+
 .chances .container {
+  display: flex;
+  justify-content: center;
   height: 0.2rem;
-  overflow: hidden;
+  overflow-x: hidden;
   background: var(--theme-faded);
 }
 
-.chances .bar {
+.chances.over .container {
+  background: none;
+}
+
+.chances .progress-bar {
+  width: 50%;
   height: 100%;
   color: var(--theme-accent);
   background-color: currentColor;
   transition-property: transform, color;
   transition-duration: 800ms;
-  transition-timing-function: cubic-bezier(0.6, -0.6, 0.2, 1.5);
+  transition-timing-function: cubic-bezier(1, -2, 0.2, 1.5);
 }
 
-.chances .bar.victory {
+.chances .progress-bar.left {
+  transform-origin: right;
+}
+
+.chances .progress-bar.right {
+  transform-origin: left;
+}
+
+.chances.victory .progress-bar {
   color: var(--theme-valid);
 }
 
-.chances .bar.defeat {
+.chances.defeat .progress-bar {
   color: var(--theme-destructive);
 }

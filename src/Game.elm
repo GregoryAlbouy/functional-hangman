@@ -114,32 +114,41 @@ viewKeyboard isActive pickedLetters =
 viewChancesLeft : { gameState : Engine.State, current : Int, max : Int } -> Html msg
 viewChancesLeft { gameState, current, max } =
     let
-        ( className, ratio ) =
+        ( isOver, className, ratio ) =
             case gameState of
                 NotStarted ->
-                    ( "", 0 )
+                    ( False, "", 0 )
 
                 Ended Victory ->
-                    ( "victory", 1 )
+                    ( True, "over victory", 1 )
 
                 Ended Defeat ->
-                    ( "defeat", 1 )
+                    ( True, "over defeat", 1 )
 
                 Running ->
-                    ( ""
+                    ( False
+                    , ""
                     , toFloat (max - current)
                         / toFloat max
                     )
+
+        transform : String -> String
+        transform side =
+            if not isOver then
+                "scaleX(" ++ String.fromFloat ratio ++ ")"
+
+            else if side == "left" then
+                "scaleX(1) translateX(150%)"
+
+            else
+                "scaleX(1) translateX(-150%)"
+
+        progressBar : String -> Html msg
+        progressBar side =
+            div [ class ("progress-bar " ++ side), style "transform" (transform side) ] []
     in
-    div [ class "chances" ]
-        [ div [ class "container" ]
-            [ div
-                [ classList [ ( "bar", True ), ( className, True ) ]
-                , style "transform" ("scaleX(" ++ String.fromFloat ratio ++ ")")
-                ]
-                []
-            ]
-        ]
+    div [ classList [ ( "chances", True ), ( className, isOver ) ] ]
+        [ div [ class "container" ] [ progressBar "left", progressBar "right" ] ]
 
 
 viewWord : List Char -> Html msg
