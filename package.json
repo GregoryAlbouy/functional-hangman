@@ -9,6 +9,7 @@
     "dev": "elm-watch hot & static-server -p 9999 .",
     "build": "elm-watch make --optimize",
     "lint": "elm-format ./src --validate && elm-review",
+    "lint:fix": "elm-format ./src --yes && elm-review --fix",
     "lint:watch": "elm-review --watch",
     "test": "elm-test",
     "test:watch": "elm-test --watch",
