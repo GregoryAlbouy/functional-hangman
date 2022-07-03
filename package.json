@@ -12,6 +12,7 @@
     "lint:watch": "elm-review --watch",
     "test": "elm-test",
     "test:watch": "elm-test --watch",
+    "checkall": "yarn lint && yarn test",
     "clear": "rm -rf ./elm-stuff/* ./build/*"
   },
   "devDependencies": {
