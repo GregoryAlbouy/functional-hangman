@@ -6,13 +6,15 @@
   "author": "Gregory Albouy <gregoryalbouy75@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "npx elm-watch hot & static-server -p 9999 .",
-    "build": "npx elm-watch make --optimize",
-    "test": "npx elm-test",
-    "test:watch": "npx elm-test --watch",
+    "dev": "elm-watch hot & static-server -p 9999 .",
+    "build": "elm-watch make --optimize",
+    "test": "elm-test",
+    "test:watch": "elm-test --watch",
     "clear": "rm -rf ./elm-stuff/* ./build/*"
   },
   "devDependencies": {
+    "elm-test": "^0.19.1-revision8",
+    "elm-watch": "^1.0.0-beta.11",
     "static-server": "^2.2.1"
   }
 }
