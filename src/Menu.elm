@@ -1,4 +1,4 @@
-module Menu exposing (Difficulty(..), Model, Msg(..), State(..), initialModel, reset, update, view, viewToggleButton, withDifficulty, withError, withInputWord, withState)
+module Menu exposing (Difficulty(..), Model, Msg(..), State(..), initialModel, reset, update, view, viewToggleButton)
 
 import Alphabet
 import Constants
@@ -187,6 +187,7 @@ viewFetchRandomWordButton =
 viewError : Maybe Http.Error -> Html Msg
 viewError error =
     let
+        errorStr : String
         errorStr =
             case error of
                 Just (Http.BadStatus code) ->
@@ -207,6 +208,7 @@ viewError error =
                 Nothing ->
                     ""
 
+        message : String
         message =
             if errorStr == "" then
                 ""

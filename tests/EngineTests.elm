@@ -1,8 +1,8 @@
-module EngineTests exposing (..)
+module EngineTests exposing (testGetRemainingTries, testGetWordRepr, testIsLost, testIsOver, testIsStarted, testIsWon, testPickLetter, testState)
 
 import Engine exposing (End(..), Model, State(..), chancesLeft, init, isLetterPicked, isLost, isOver, isStarted, isWon, pickLetter, state, wordRepr)
 import Expect
-import Test exposing (..)
+import Test exposing (Test, describe, test)
 
 
 
@@ -148,6 +148,7 @@ testIsOver =
 testPickLetter : Test
 testPickLetter =
     let
+        run : { a | name : String, exp : Bool -> Expect.Expectation, model : Model, pickedLetter : Char } -> Test
         run c =
             test c.name <|
                 \_ ->
@@ -249,6 +250,7 @@ type alias StateCase a =
 runTestCases : String -> (Model -> a) -> List (StateCase a) -> Test
 runTestCases desc fn cases =
     let
+        run : StateCase a -> Test
         run c =
             test c.name (\_ -> c.exp (fn c.model))
     in

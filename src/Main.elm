@@ -1,12 +1,12 @@
-module Main exposing (main)
+module Main exposing (Model, Msg, main)
 
 import Alphabet
 import Browser
 import Browser.Events
 import Constants
 import Engine exposing (End(..), State(..))
-import Html exposing (Html, a, button, div, header, img, input, span, text)
-import Html.Attributes exposing (alt, class, classList, disabled, href, name, src, style, target)
+import Html exposing (Html, a, button, div, header, img, span, text)
+import Html.Attributes exposing (alt, class, classList, disabled, href, src, style, target)
 import Html.Events exposing (onClick)
 import Json.Decode as D
 import Menu
@@ -154,6 +154,7 @@ viewHeader menuState =
 viewGame : Model -> Html Msg
 viewGame model =
     let
+        isStarted : Bool
         isStarted =
             Engine.isStarted model.engine
     in
