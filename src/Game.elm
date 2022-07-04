@@ -67,11 +67,11 @@ update msg model =
 
 onKeyUp : D.Decoder Msg
 onKeyUp =
-    KeyboardInput.onKeyUp pickStringLetter
+    KeyboardInput.onKeyUp handleKeyUp
 
 
-pickStringLetter : String -> Msg
-pickStringLetter key =
+handleKeyUp : String -> Msg
+handleKeyUp key =
     case KeyboardInput.toKey key of
         KeyboardInput.Char_ char ->
             Pick char
