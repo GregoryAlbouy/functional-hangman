@@ -443,7 +443,7 @@ input {
   visibility: visible;
   opacity: 1;
   transform: scaleY(1);
-  transition: opacity 400ms 800ms, transform 400ms 800ms;
+  transition: opacity 200ms 600ms, transform 200ms 600ms;
 }
 
 .chances.victory::before {
