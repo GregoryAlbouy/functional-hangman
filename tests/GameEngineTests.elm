@@ -1,4 +1,4 @@
-module GameEngineTests exposing (testGetRemainingTries, testGetWordRepr, testPickLetter, testState)
+module GameEngineTests exposing (testChancesLeft, testPickLetter, testState, testWordRepr)
 
 import Expect
 import Game.Engine exposing (End(..), Model, State(..), chancesLeft, init, isLetterPicked, pickLetter, state, wordRepr)
@@ -96,8 +96,8 @@ testPickLetter =
         )
 
 
-testGetRemainingTries : Test
-testGetRemainingTries =
+testChancesLeft : Test
+testChancesLeft =
     [ { name = "good pick does not decrement"
       , model = initModel |> pickLetter 'l'
       , exp = Expect.equal 3
@@ -122,8 +122,8 @@ testGetRemainingTries =
         |> runTestCases "getRemainingTries" chancesLeft
 
 
-testGetWordRepr : Test
-testGetWordRepr =
+testWordRepr : Test
+testWordRepr =
     [ { name = "hides letters not found"
       , model = initModel
       , exp = Expect.equalLists [ '_', '_', '_', '_', '_' ]
