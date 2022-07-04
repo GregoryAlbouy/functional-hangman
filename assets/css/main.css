@@ -10,6 +10,13 @@
   --color-transparent-white: rgba(255, 255, 255, 0.2);
   --color-transparent-black: rgba(0, 0, 0, 0.2);
 
+  --font-size-s: 1.2rem;
+  --font-size-m: 1.4rem;
+  --font-size-l: 1.8rem;
+  --font-size-xl: 2rem;
+  --font-weight-regular: 400;
+  --font-weight-semi: 600;
+
   --theme-accent: var(--color-orange-red);
   --theme-foreground: var(--color-white);
   --theme-background: var(--color-teal-dark);
@@ -56,7 +63,7 @@ body {
   background-color: var(--theme-background);
   color: var(--theme-foreground);
   font-family: var(--sans-serif);
-  font-size: 1.4rem;
+  font-size: var(--font-size-m);
 }
 
 button {
@@ -78,7 +85,7 @@ input {
   background-color: var(--theme-accent);
   color: var(--theme-background);
   text-transform: uppercase;
-  font-weight: 600;
+  font-weight: var(--font-weight-semi);
 }
 
 .full-width {
@@ -157,7 +164,7 @@ input {
 .menu .word-input-container input {
   width: 100%;
   padding-left: 1.6rem;
-  font-size: 1.8rem;
+  font-size: var(--font-size-l);
   text-transform: uppercase;
 }
 
@@ -306,8 +313,8 @@ input {
   display: flex;
   align-items: center;
   margin-left: 3.2rem;
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semi);
   letter-spacing: 0.2rem;
 }
 
@@ -361,8 +368,8 @@ input {
   height: 5.2rem;
   border: 1px solid currentColor;
   color: var(--theme-foreground);
-  font-size: 1.6rem;
-  font-weight: 700;
+  font-size: var(--font-size-l);
+  font-weight: var(--font-weight-semi);
   text-transform: uppercase;
   background-color: var(--theme-background);
   transition-property: color, background-color, transform;
@@ -421,8 +428,8 @@ input {
   opacity: 0;
   transform: scaleY(0);
 
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semi);
   letter-spacing: 0.2rem;
   text-align: center;
   text-transform: uppercase;
