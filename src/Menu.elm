@@ -27,26 +27,6 @@ initialModel =
     }
 
 
-withState : State -> Model -> Model
-withState state model =
-    { model | state = state }
-
-
-withDifficulty : Difficulty -> Model -> Model
-withDifficulty difficulty model =
-    { model | difficulty = difficulty }
-
-
-withInputWord : String -> Model -> Model
-withInputWord wordInput model =
-    { model | inputWord = wordInput }
-
-
-withError : Maybe Http.Error -> Model -> Model
-withError error model =
-    { model | error = error }
-
-
 reset : Model -> Model
 reset model =
     { model
@@ -88,22 +68,22 @@ update msg model =
     in
     case msg of
         ToggleMenu state ->
-            ( model |> withState state
+            ( { model | state = state }
             , Cmd.none
             )
 
         SetDifficulty d ->
-            ( model |> withDifficulty d, Cmd.none )
+            ( { model | difficulty = d }, Cmd.none )
 
         SetInputWord input ->
             if Alphabet.isValidWord input then
-                ( model |> withInputWord (String.toLower input), Cmd.none )
+                ( { model | inputWord = String.toLower input }, Cmd.none )
 
             else
                 noop
 
         GotHttpResponse (Err error) ->
-            ( model |> withError (Just error), Cmd.none )
+            ( { model | error = Just error }, Cmd.none )
 
         GotHttpResponse (Ok _) ->
             noop
@@ -112,7 +92,7 @@ update msg model =
             noop
 
         ClickRandom ->
-            ( model |> withError Nothing, fetchRandomWord )
+            ( { model | error = Nothing }, fetchRandomWord )
 
 
 
