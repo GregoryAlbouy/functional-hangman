@@ -131,24 +131,22 @@ viewChancesLeft { gameState, current, max } =
                     , toFloat (max - current)
                         / toFloat max
                     )
-
-        transform : String -> String
-        transform side =
-            if not isOver then
-                "scaleX(" ++ String.fromFloat ratio ++ ")"
-
-            else if side == "left" then
-                "scaleX(1) translateX(150%)"
-
-            else
-                "scaleX(1) translateX(-150%)"
-
-        progressBar : String -> Html msg
-        progressBar side =
-            div [ class ("progress-bar " ++ side), style "transform" (transform side) ] []
     in
     div [ classList [ ( "chances", True ), ( className, isOver ) ] ]
-        [ div [ class "container" ] [ progressBar "left", progressBar "right" ] ]
+        [ div [ class "container" ] (List.map (viewProgressBar isOver ratio) [ Left, Right ]) ]
+
+
+viewProgressBar : Bool -> Float -> Side -> Html msg
+viewProgressBar isOver ratio side =
+    div
+        [ classList
+            [ ( "progress-bar", True )
+            , ( "left", side == Left )
+            , ( "right", side == Right )
+            ]
+        , style "transform" (transformProgressBar isOver side ratio)
+        ]
+        []
 
 
 viewWord : List Char -> Html msg
@@ -183,3 +181,22 @@ toKey input =
 
         _ ->
             Noop
+
+
+transformProgressBar : Bool -> Side -> Float -> String
+transformProgressBar isOver side ratio =
+    if not isOver then
+        "scaleX(" ++ String.fromFloat ratio ++ ")"
+
+    else
+        case side of
+            Left ->
+                "scaleX(1) translateX(150%)"
+
+            Right ->
+                "scaleX(1) translateX(-150%)"
+
+
+type Side
+    = Left
+    | Right
