@@ -118,24 +118,10 @@ onKeyUp model =
 handleKeyUp : Model -> String -> Msg
 handleKeyUp model key =
     if KeyboardInput.isEscape key then
-        toggleMenuOnEscape model.state
+        ToggleMenu (Toggle.toggle model.state)
 
-    else if KeyboardInput.isEnter key then
-        validateInputWordOnEnter model
-
-    else
-        Noop
-
-
-toggleMenuOnEscape : State -> Msg
-toggleMenuOnEscape currentState =
-    ToggleMenu (Toggle.toggle currentState)
-
-
-validateInputWordOnEnter : Model -> Msg
-validateInputWordOnEnter { inputFocus, inputWord } =
-    if inputFocus == Toggle.On then
-        ClickCustom inputWord
+    else if KeyboardInput.isEnter key && model.inputFocus == Toggle.On then
+        ClickCustom model.inputWord
 
     else
         Noop
