@@ -116,13 +116,13 @@ updateGame gameMsg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    listenKeyboardEvents model.menu.state
+    listenKeyboardEvents model.menu
 
 
-listenKeyboardEvents : Menu.State -> Sub Msg
-listenKeyboardEvents menuState =
+listenKeyboardEvents : Menu.Model -> Sub Msg
+listenKeyboardEvents menuModel =
     [ Game.onKeyUp |> D.map GotGameMsg
-    , Menu.onKeyUp menuState |> D.map GotMenuMsg
+    , Menu.onKeyUp menuModel |> D.map GotMenuMsg
     ]
         |> KeyboardInput.listen
 

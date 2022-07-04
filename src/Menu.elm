@@ -4,7 +4,7 @@ import Alphabet
 import Constants
 import Html exposing (Html, button, div, h2, h3, header, input, p, section, text)
 import Html.Attributes exposing (class, classList, placeholder, style, type_, value)
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (onBlur, onClick, onFocus, onInput)
 import Http
 import Json.Decode as D
 import KeyboardInput
@@ -15,6 +15,7 @@ type alias Model =
     { state : State
     , difficulty : Difficulty
     , inputWord : String
+    , inputFocus : Toggle.State
     , error : Maybe Http.Error
     }
 
@@ -24,6 +25,7 @@ initialModel =
     { state = Toggle.On
     , difficulty = Medium
     , inputWord = ""
+    , inputFocus = Toggle.Off
     , error = Nothing
     }
 
@@ -55,9 +57,11 @@ type Msg
     = ToggleMenu Toggle.State
     | SetDifficulty Difficulty
     | SetInputWord String
+    | SetInputFocus Toggle.State
     | ClickCustom String
     | ClickRandom
     | GotHttpResponse (Result Http.Error (List String))
+    | Noop
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -83,6 +87,9 @@ update msg model =
             else
                 noop
 
+        SetInputFocus state ->
+            ( { model | inputFocus = state }, Cmd.none )
+
         GotHttpResponse (Err error) ->
             ( { model | error = Just error }, Cmd.none )
 
@@ -95,28 +102,43 @@ update msg model =
         ClickRandom ->
             ( { model | error = Nothing }, fetchRandomWord )
 
+        Noop ->
+            noop
+
 
 
 -- KEYBOARD EVENTS
 
 
-onKeyUp : State -> D.Decoder Msg
-onKeyUp currentState =
-    KeyboardInput.onKeyUp (toggleMenuOnEscape currentState)
+onKeyUp : Model -> D.Decoder Msg
+onKeyUp model =
+    KeyboardInput.onKeyUp (handleKeyUp model)
 
 
-toggleMenuOnEscape : State -> String -> Msg
-toggleMenuOnEscape currentState key =
-    let
-        newState : State
-        newState =
-            if KeyboardInput.isEscape key then
-                Toggle.toggle currentState
+handleKeyUp : Model -> String -> Msg
+handleKeyUp model key =
+    if KeyboardInput.isEscape key then
+        toggleMenuOnEscape model.state
 
-            else
-                currentState
-    in
-    ToggleMenu newState
+    else if KeyboardInput.isEnter key then
+        validateInputWordOnEnter model
+
+    else
+        Noop
+
+
+toggleMenuOnEscape : State -> Msg
+toggleMenuOnEscape currentState =
+    ToggleMenu (Toggle.toggle currentState)
+
+
+validateInputWordOnEnter : Model -> Msg
+validateInputWordOnEnter { inputFocus, inputWord } =
+    if inputFocus == Toggle.On then
+        ClickCustom inputWord
+
+    else
+        Noop
 
 
 
@@ -176,6 +198,8 @@ viewWordInput wordInput =
             [ type_ "text"
             , placeholder "Type a word..."
             , onInput SetInputWord
+            , onFocus (SetInputFocus Toggle.On)
+            , onBlur (SetInputFocus Toggle.Off)
             , value wordInput
             ]
             []

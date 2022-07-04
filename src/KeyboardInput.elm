@@ -1,4 +1,4 @@
-module KeyboardInput exposing (asChar, isEscape, listen, onKeyUp)
+module KeyboardInput exposing (asChar, isEnter, isEscape, listen, onKeyUp)
 
 import Browser.Events
 import Json.Decode as D
@@ -12,6 +12,16 @@ keyEscape =
 isEscape : String -> Bool
 isEscape key =
     key == keyEscape
+
+
+keyEnter : String
+keyEnter =
+    "Enter"
+
+
+isEnter : String -> Bool
+isEnter key =
+    key == keyEnter
 
 
 asChar : String -> Maybe Char
