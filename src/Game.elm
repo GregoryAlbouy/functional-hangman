@@ -72,8 +72,8 @@ onKeyUp =
 
 pickStringLetter : String -> Msg
 pickStringLetter key =
-    case KeyboardInput.asChar key of
-        Just char ->
+    case KeyboardInput.toKey key of
+        KeyboardInput.Char_ char ->
             Pick char
 
         _ ->

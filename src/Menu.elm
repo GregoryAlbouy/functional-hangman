@@ -117,14 +117,19 @@ onKeyUp model =
 
 handleKeyUp : Model -> String -> Msg
 handleKeyUp model key =
-    if KeyboardInput.isEscape key then
-        ToggleMenu (Toggle.toggle model.state)
+    case KeyboardInput.toKey key of
+        KeyboardInput.Escape ->
+            ToggleMenu (Toggle.toggle model.state)
 
-    else if KeyboardInput.isEnter key && model.inputFocus == Toggle.On then
-        ClickCustom model.inputWord
+        KeyboardInput.Enter ->
+            if model.inputFocus == Toggle.On then
+                ClickCustom model.inputWord
 
-    else
-        Noop
+            else
+                Noop
+
+        _ ->
+            Noop
 
 
 
