@@ -22,6 +22,17 @@ empty =
     }
 
 
+init : String -> Int -> Model
+init wordToGuess chances =
+    empty
+        |> withWord wordToGuess
+        |> withChances chances
+
+
+
+-- MODEL setters
+
+
 withWord : String -> Model -> Model
 withWord word model =
     { model | word = Just (String.toList word) }
@@ -76,14 +87,22 @@ state model =
                 Running
 
 
-isLetterPicked : Char -> Model -> Bool
-isLetterPicked letter model =
-    Set.member letter model.pickedLetters
+
+-- UPDATE
 
 
-isLetterMatch : Char -> Model -> Bool
-isLetterMatch letter model =
-    List.member letter (unwrapWord model.word)
+pickLetter : Char -> Model -> Model
+pickLetter letter model =
+    case state model of
+        Running ->
+            withPickedLetter letter model
+
+        _ ->
+            model
+
+
+
+-- VIEW
 
 
 wordRepr : Char -> Model -> List Char
@@ -153,6 +172,16 @@ pickLetter letter model =
 
 
 -- HELPERS
+
+
+isLetterPicked : Char -> Model -> Bool
+isLetterPicked letter model =
+    Set.member letter model.pickedLetters
+
+
+isLetterMatch : Char -> Model -> Bool
+isLetterMatch letter model =
+    List.member letter (unwrapWord model.word)
 
 
 unwrapWord : Maybe (List Char) -> List Char
