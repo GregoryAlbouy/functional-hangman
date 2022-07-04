@@ -119,7 +119,7 @@ testChancesLeft =
       , exp = Expect.equal 0
       }
     ]
-        |> runTestCases "getRemainingTries" chancesLeft
+        |> runTestCases "chancesLeft" chancesLeft
 
 
 testWordRepr : Test
@@ -145,7 +145,7 @@ testWordRepr =
       , exp = Expect.equalLists []
       }
     ]
-        |> runTestCases "getWordRepr" (wordRepr '_')
+        |> runTestCases "wordRepr" (wordRepr '_')
 
 
 
