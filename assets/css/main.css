@@ -1,5 +1,5 @@
 :root {
-  --color-white: #eee;
+  --color-cream-light: #fcfcf6;
   --color-teal-dark: #123;
   --color-grey-light: #ccc;
   --color-grey-dark: #666;
@@ -18,7 +18,7 @@
   --font-weight-semi: 600;
 
   --theme-accent: var(--color-orange-red);
-  --theme-foreground: var(--color-white);
+  --theme-foreground: var(--color-cream-light);
   --theme-background: var(--color-teal-dark);
   --theme-destructive: var(--color-red);
   --theme-valid: var(--color-green-light);
@@ -38,7 +38,7 @@
 @media (prefers-color-scheme: light) {
   :root {
     --theme-foreground: var(--color-teal-dark);
-    --theme-background: var(--color-white);
+    --theme-background: var(--color-cream-light);
     --theme-faded: var(--color-grey-light);
     --theme-valid: var(--color-green-medium);
 
