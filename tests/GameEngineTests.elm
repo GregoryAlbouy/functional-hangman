@@ -1,7 +1,7 @@
-module GameEngineTests exposing (testGetRemainingTries, testGetWordRepr, testIsLost, testIsOver, testIsStarted, testIsWon, testPickLetter, testState)
+module GameEngineTests exposing (testGetRemainingTries, testGetWordRepr, testPickLetter, testState)
 
 import Expect
-import Game.Engine exposing (End(..), Model, State(..), chancesLeft, init, isLetterPicked, isLost, isOver, isStarted, isWon, pickLetter, state, wordRepr)
+import Game.Engine exposing (End(..), Model, State(..), chancesLeft, init, isLetterPicked, pickLetter, state, wordRepr)
 import Test exposing (Test, describe, test)
 
 
@@ -55,94 +55,6 @@ testState =
       }
     ]
         |> runTestCases "testState" state
-
-
-testIsStarted : Test
-testIsStarted =
-    [ { name = "empty is not started"
-      , model = Game.Engine.empty
-      , exp = Expect.false ""
-      }
-    , { name = "init is started"
-      , model = initModel
-      , exp = Expect.true ""
-      }
-    , { name = "won is started"
-      , model = wonModel
-      , exp = Expect.true ""
-      }
-    , { name = "lost is started"
-      , model = lostModel
-      , exp = Expect.true ""
-      }
-    ]
-        |> runTestCases "isStarted" isStarted
-
-
-testIsWon : Test
-testIsWon =
-    [ { name = "empty is not won"
-      , model = Game.Engine.empty
-      , exp = Expect.false ""
-      }
-    , { name = "init is not won"
-      , model = initModel
-      , exp = Expect.false ""
-      }
-    , { name = "won is won"
-      , model = wonModel
-      , exp = Expect.true ""
-      }
-    , { name = "lost is not won"
-      , model = lostModel
-      , exp = Expect.false ""
-      }
-    ]
-        |> runTestCases "isWon" isWon
-
-
-testIsLost : Test
-testIsLost =
-    [ { name = "empty is not lost"
-      , model = Game.Engine.empty
-      , exp = Expect.false ""
-      }
-    , { name = "init is not lost"
-      , model = initModel
-      , exp = Expect.false ""
-      }
-    , { name = "won is not lost"
-      , model = wonModel
-      , exp = Expect.false ""
-      }
-    , { name = "lost is lost"
-      , model = lostModel
-      , exp = Expect.true ""
-      }
-    ]
-        |> runTestCases "isLost" isLost
-
-
-testIsOver : Test
-testIsOver =
-    [ { name = "empty is not over"
-      , model = Game.Engine.empty
-      , exp = Expect.false ""
-      }
-    , { name = "init is not over"
-      , model = initModel
-      , exp = Expect.false ""
-      }
-    , { name = "won is over"
-      , model = wonModel
-      , exp = Expect.true ""
-      }
-    , { name = "lost is over"
-      , model = lostModel
-      , exp = Expect.true ""
-      }
-    ]
-        |> runTestCases "isOver" isOver
 
 
 testPickLetter : Test

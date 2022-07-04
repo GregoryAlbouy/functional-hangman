@@ -1,4 +1,4 @@
-module Game.Engine exposing (End(..), Model, State(..), chancesLeft, empty, init, isLetterPicked, isLost, isOver, isStarted, isWon, pickLetter, state, wordRepr)
+module Game.Engine exposing (End(..), Model, State(..), chancesLeft, empty, init, isLetterPicked, pickLetter, state, wordRepr)
 
 import Set exposing (Set)
 
@@ -74,26 +74,6 @@ state model =
 
             else
                 Running
-
-
-isStarted : Model -> Bool
-isStarted model =
-    not (state model == NotStarted)
-
-
-isWon : Model -> Bool
-isWon model =
-    state model == Ended Victory
-
-
-isLost : Model -> Bool
-isLost model =
-    state model == Ended Defeat
-
-
-isOver : Model -> Bool
-isOver model =
-    isWon model || isLost model
 
 
 isLetterPicked : Char -> Model -> Bool

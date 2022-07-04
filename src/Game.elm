@@ -89,7 +89,7 @@ view model =
     let
         isStarted : Bool
         isStarted =
-            Engine.isStarted model.engine
+            Engine.state model.engine /= Engine.NotStarted
     in
     div [ class "game-container" ]
         [ viewWord (Engine.wordRepr '_' model.engine)
