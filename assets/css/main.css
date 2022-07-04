@@ -451,7 +451,7 @@ input {
   background-color: currentColor;
   transition-property: transform, color;
   transition-duration: 800ms;
-  transition-timing-function: cubic-bezier(1, -2, 0.2, 1.5);
+  transition-timing-function: ease-out;
 }
 
 .chances .progress-bar.left {
