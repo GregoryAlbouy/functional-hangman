@@ -1,11 +1,12 @@
 module Main exposing (Model, Msg, main)
 
 import Browser
-import Browser.Events
 import Constants
 import Game
 import Html exposing (Html, a, div, header, img, text)
 import Html.Attributes exposing (alt, class, href, src, target)
+import Json.Decode as D
+import KeyboardInput
 import Menu
 import Platform.Cmd exposing (Cmd)
 import Toggle
@@ -120,10 +121,10 @@ subscriptions model =
 
 listenKeyboardEvents : Menu.State -> Sub Msg
 listenKeyboardEvents menuState =
-    Sub.batch
-        [ Browser.Events.onKeyUp Game.onKeyUp |> Sub.map GotGameMsg
-        , Browser.Events.onKeyUp (Menu.onKeyUp menuState) |> Sub.map GotMenuMsg
-        ]
+    [ Game.onKeyUp |> D.map GotGameMsg
+    , Menu.onKeyUp menuState |> D.map GotMenuMsg
+    ]
+        |> KeyboardInput.listen
 
 
 

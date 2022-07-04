@@ -6,6 +6,7 @@ import Html exposing (Html, button, div, span, text)
 import Html.Attributes exposing (class, classList, disabled, style)
 import Html.Events exposing (onClick)
 import Json.Decode as D
+import KeyboardInput
 import Set exposing (Set)
 import Toggle exposing (State(..))
 
@@ -66,13 +67,13 @@ update msg model =
 
 onKeyUp : D.Decoder Msg
 onKeyUp =
-    D.map pickFirstLetter (D.field "key" D.string)
+    KeyboardInput.onKeyUp pickStringLetter
 
 
-pickFirstLetter : String -> Msg
-pickFirstLetter input =
-    case String.uncons input of
-        Just ( char, "" ) ->
+pickStringLetter : String -> Msg
+pickStringLetter key =
+    case KeyboardInput.asChar key of
+        Just char ->
             Pick char
 
         _ ->

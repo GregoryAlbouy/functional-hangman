@@ -7,6 +7,7 @@ import Html.Attributes exposing (class, classList, placeholder, style, type_, va
 import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as D
+import KeyboardInput
 import Toggle
 
 
@@ -101,7 +102,7 @@ update msg model =
 
 onKeyUp : State -> D.Decoder Msg
 onKeyUp currentState =
-    D.map (toggleMenuOnEscape currentState) (D.field "key" D.string)
+    KeyboardInput.onKeyUp (toggleMenuOnEscape currentState)
 
 
 toggleMenuOnEscape : State -> String -> Msg
@@ -109,7 +110,7 @@ toggleMenuOnEscape currentState key =
     let
         newState : State
         newState =
-            if key == "Escape" then
+            if KeyboardInput.isEscape key then
                 Toggle.toggle currentState
 
             else
