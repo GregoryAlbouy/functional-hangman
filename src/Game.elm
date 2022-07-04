@@ -1,7 +1,6 @@
-module Game exposing (Model, Msg, init, initialModel, listenKeyboardEvents, update, view, withState)
+module Game exposing (Model, Msg, init, initialModel, onKeyUp, update, view, withState)
 
 import Alphabet
-import Browser.Events
 import Game.Engine as Engine exposing (End(..), State(..))
 import Html exposing (Html, button, div, span, text)
 import Html.Attributes exposing (class, classList, disabled, style)
@@ -62,12 +61,22 @@ update msg model =
 
 
 
--- SUBSCRIPTIONS
+-- KEYBOARD INPUT
 
 
-listenKeyboardEvents : Sub Msg
-listenKeyboardEvents =
-    Browser.Events.onKeyUp decodeKey
+onKeyUp : D.Decoder Msg
+onKeyUp =
+    D.map pickFirstLetter (D.field "key" D.string)
+
+
+pickFirstLetter : String -> Msg
+pickFirstLetter input =
+    case String.uncons input of
+        Just ( char, "" ) ->
+            Pick char
+
+        _ ->
+            Noop
 
 
 
@@ -166,21 +175,6 @@ viewWord letters =
 charToTextNode : Char -> Html msg
 charToTextNode char =
     text (String.fromChar char)
-
-
-decodeKey : D.Decoder Msg
-decodeKey =
-    D.map toKey (D.field "key" D.string)
-
-
-toKey : String -> Msg
-toKey input =
-    case String.uncons input of
-        Just ( char, "" ) ->
-            Pick char
-
-        _ ->
-            Noop
 
 
 transformProgressBar : Bool -> Side -> Float -> String

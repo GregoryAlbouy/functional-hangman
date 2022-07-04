@@ -1,6 +1,7 @@
 module Main exposing (Model, Msg, main)
 
 import Browser
+import Browser.Events
 import Constants
 import Game
 import Html exposing (Html, a, div, header, img, text)
@@ -113,8 +114,16 @@ updateGame gameMsg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Sub.map GotGameMsg Game.listenKeyboardEvents
+subscriptions model =
+    listenKeyboardEvents model.menu.state
+
+
+listenKeyboardEvents : Menu.State -> Sub Msg
+listenKeyboardEvents menuState =
+    Sub.batch
+        [ Browser.Events.onKeyUp Game.onKeyUp |> Sub.map GotGameMsg
+        , Browser.Events.onKeyUp (Menu.onKeyUp menuState) |> Sub.map GotMenuMsg
+        ]
 
 
 

@@ -1,4 +1,4 @@
-module Menu exposing (Difficulty(..), Model, Msg(..), State, initialModel, reset, update, view, viewToggleButton)
+module Menu exposing (Difficulty(..), Model, Msg(..), State, initialModel, onKeyUp, reset, update, view, viewToggleButton)
 
 import Alphabet
 import Constants
@@ -93,6 +93,29 @@ update msg model =
 
         ClickRandom ->
             ( { model | error = Nothing }, fetchRandomWord )
+
+
+
+-- KEYBOARD EVENTS
+
+
+onKeyUp : State -> D.Decoder Msg
+onKeyUp currentState =
+    D.map (toggleMenuOnEscape currentState) (D.field "key" D.string)
+
+
+toggleMenuOnEscape : State -> String -> Msg
+toggleMenuOnEscape currentState key =
+    let
+        newState : State
+        newState =
+            if key == "Escape" then
+                Toggle.toggle currentState
+
+            else
+                currentState
+    in
+    ToggleMenu newState
 
 
 
