@@ -1,4 +1,4 @@
-module Game.Engine exposing (End(..), Model, State(..), chancesLeft, empty, init, isLetterPicked, pickLetter, state, wordRepr)
+module Game.Engine exposing (End(..), Model, State(..), chancesLeft, chancesLeftRecursive, empty, init, isLetterPicked, pickLetter, state, wordRepr)
 
 import Set exposing (Set)
 
@@ -48,13 +48,6 @@ withChances n model =
     { model | chances = n }
 
 
-init : String -> Int -> Model
-init wordToGuess chances =
-    empty
-        |> withWord wordToGuess
-        |> withChances chances
-
-
 
 -- STATE
 
@@ -95,7 +88,7 @@ pickLetter : Char -> Model -> Model
 pickLetter letter model =
     case state model of
         Running ->
-            withPickedLetter letter model
+            model |> withPickedLetter letter
 
         _ ->
             model
@@ -132,45 +125,45 @@ wordRepr emptyRepr model =
             word
 
 
+{-| Compute remaining chances based on model, by substracting to`model.chances`
+the count of unmatching letters in `model.pickedLetters`.
+-}
 chancesLeft : Model -> Int
 chancesLeft model =
-    Set.foldl
-        (\letter remainingTries ->
-            if isLetterMatch letter model then
-                remainingTries
-
-            else
-                remainingTries - 1
-        )
-        model.chances
-        model.pickedLetters
+    Set.foldl (decrementIfUnmatched model) model.chances model.pickedLetters
 
 
+chancesLeftRecursive : Model -> Int
+chancesLeftRecursive model =
+    let
+        recurse : List Char -> Int -> Int
+        recurse letters count =
+            case letters of
+                letter :: rest ->
+                    count
+                        |> decrementIfUnmatched model letter
+                        |> recurse rest
 
--- chancesLeft : Model -> Int
--- chancesLeft model =
---     let
---         substractToMaxTries : Int -> Int
---         substractToMaxTries n =
---             model.chances - n
---         isUnmatched : Char -> Bool
---         isUnmatched letter =
---             not (isLetterMatch letter model)
---     in
---     substractToMaxTries <| Set.size <| Set.filter isUnmatched <| model.pickedLetters
-
-
-pickLetter : Char -> Model -> Model
-pickLetter letter model =
-    case state model of
-        Running ->
-            withPickedLetter letter model
-
-        _ ->
-            model
+                _ ->
+                    count
+    in
+    recurse (Set.toList model.pickedLetters) model.chances
 
 
 
+{--
+chancesLeft : Model -> Int
+chancesLeft model =
+    let
+        substractToChances : Int -> Int
+        substractToChances n =
+            model.chances - n
+    in
+    substractToChances << Set.size << Set.filter (flip isUnmatched model) <| model.pickedLetters
+--}
+
+
+{--}
 -- HELPERS
 
 
@@ -179,9 +172,18 @@ isLetterPicked letter model =
     Set.member letter model.pickedLetters
 
 
-isLetterMatch : Char -> Model -> Bool
-isLetterMatch letter model =
-    List.member letter (unwrapWord model.word)
+isUnmatched : Char -> Model -> Bool
+isUnmatched letter model =
+    not <| List.member letter (unwrapWord model.word)
+
+
+decrementIfUnmatched : Model -> Char -> Int -> Int
+decrementIfUnmatched model letter n =
+    if isUnmatched letter model then
+        n - 1
+
+    else
+        n
 
 
 unwrapWord : Maybe (List Char) -> List Char
