@@ -51,11 +51,15 @@ update msg model =
     let
         startGame : String -> ( Model, Cmd Msg )
         startGame word =
-            ( model
-                |> withGame (Game.init word (chancesByDifficulty model.menu.difficulty))
-                |> withMenu (Menu.reset model.menu)
-            , Cmd.none
-            )
+            if String.length word > 0 then
+                ( model
+                    |> withGame (Game.init word (chancesByDifficulty model.menu.difficulty))
+                    |> withMenu (Menu.reset model.menu)
+                , Cmd.none
+                )
+
+            else
+                ( model, Cmd.none )
     in
     case msg of
         GotMenuMsg (Menu.ClickCustom word) ->
