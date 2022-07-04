@@ -25,6 +25,7 @@
   --theme-faded: var(--color-grey-dark);
 
   --theme-border-radius: 0.8rem;
+  --theme-border-light-theme-only: none;
   --theme-box-shadow-color: var(--color-transparent-white);
 
   --layout-header-height: 6.4rem;
@@ -43,6 +44,7 @@
     --theme-valid: var(--color-green-medium);
 
     --theme-box-shadow-color: var(--color-transparent-black);
+    --theme-border-light-theme-only: 1px solid var(--theme-accent);
   }
 }
 
@@ -60,6 +62,7 @@
 
 body {
   margin: 0;
+  padding: var(--test-padding) 15px;
   background-color: var(--theme-background);
   color: var(--theme-foreground);
   font-family: var(--sans-serif);
@@ -153,8 +156,6 @@ input {
   display: flex;
   width: 100%;
   height: 4.8rem;
-  overflow: hidden;
-  border-radius: var(--theme-border-radius);
 }
 
 .menu .word-input-container > * {
@@ -166,6 +167,9 @@ input {
   padding-left: 1.6rem;
   font-size: var(--font-size-l);
   text-transform: uppercase;
+  border: var(--theme-border-light-theme-only);
+  border-radius: var(--theme-border-radius) 0 0 var(--theme-border-radius);
+  box-sizing: border-box;
 }
 
 .menu .word-input-container input::placeholder {
@@ -180,7 +184,7 @@ input {
 .menu .word-input-container .button {
   flex-shrink: 0;
   width: 4.8rem;
-  border-radius: 0;
+  border-radius: 0 var(--theme-border-radius) var(--theme-border-radius) 0;
 }
 
 .menu .section-title {
