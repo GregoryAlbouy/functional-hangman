@@ -1,20 +1,21 @@
 :root {
   --color-white: #eee;
-  --color-dark-teal: #123;
-  --color-light-grey: #ccc;
-  --color-dark-grey: #666;
+  --color-teal-dark: #123;
+  --color-grey-light: #ccc;
+  --color-grey-dark: #666;
   --color-orange-red: #f63;
   --color-red: #f33;
-  --color-green: #6f3;
+  --color-green-light: #6f3;
+  --color-green-medium: #6c6;
   --color-transparent-white: rgba(255, 255, 255, 0.2);
   --color-transparent-black: rgba(0, 0, 0, 0.2);
 
   --theme-accent: var(--color-orange-red);
   --theme-foreground: var(--color-white);
-  --theme-background: var(--color-dark-teal);
+  --theme-background: var(--color-teal-dark);
   --theme-destructive: var(--color-red);
-  --theme-valid: var(--color-green);
-  --theme-faded: var(--color-dark-grey);
+  --theme-valid: var(--color-green-light);
+  --theme-faded: var(--color-grey-dark);
 
   --theme-border-radius: 0.8rem;
   --theme-box-shadow-color: var(--color-transparent-white);
@@ -29,9 +30,10 @@
 
 @media (prefers-color-scheme: light) {
   :root {
-    --theme-foreground: var(--color-dark-teal);
+    --theme-foreground: var(--color-teal-dark);
     --theme-background: var(--color-white);
-    --theme-faded: var(--color-light-grey);
+    --theme-faded: var(--color-grey-light);
+    --theme-valid: var(--color-green-medium);
 
     --theme-box-shadow-color: var(--color-transparent-black);
   }
@@ -68,7 +70,7 @@ input {
   border: none;
   outline: none;
   background-color: #fff;
-  color: var(--color-dark-teal);
+  color: var(--color-teal-dark);
 }
 
 .button {
@@ -413,7 +415,6 @@ input {
   font-size: 2rem;
   letter-spacing: 0.2rem;
   text-align: center;
-  text-shadow: 0 0 0.4rem;
   text-transform: uppercase;
   transform: scaleY(0);
 }
@@ -436,30 +437,11 @@ input {
 }
 
 .chances .container {
-  position: relative;
   display: flex;
   justify-content: center;
   height: 0.2rem;
   overflow-x: hidden;
   background: var(--theme-faded);
-}
-
-.chances .container::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  color: var(--theme-background);
-  background-image: linear-gradient(
-    to right,
-    currentColor 0%,
-    transparent 10%,
-    transparent 90%,
-    currentColor 100%
-  );
-  z-index: 1;
 }
 
 .chances.over .container {
