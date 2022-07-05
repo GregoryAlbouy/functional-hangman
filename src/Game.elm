@@ -89,7 +89,7 @@ view model =
     let
         isStarted : Bool
         isStarted =
-            Engine.state model.engine /= Engine.NotStarted
+            Engine.state model.engine /= Engine.NotReady
     in
     div [ class "game-container" ]
         [ viewWord (Engine.wordRepr '_' model.engine)
@@ -126,7 +126,7 @@ viewChancesLeft { gameState, current, max } =
     let
         ( isOver, className, ratio ) =
             case gameState of
-                NotStarted ->
+                NotReady ->
                     ( False, "", 0 )
 
                 Ended Victory ->

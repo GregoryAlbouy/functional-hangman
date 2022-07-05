@@ -37,9 +37,9 @@ wonModel =
 
 testState : Test
 testState =
-    [ { name = "empty -> NotStarted"
+    [ { name = "empty -> NotReadt"
       , model = Game.Engine.empty
-      , exp = Expect.equal NotStarted
+      , exp = Expect.equal NotReady
       }
     , { name = "init -> Running"
       , model = initModel
@@ -54,7 +54,7 @@ testState =
       , exp = Expect.equal (Ended Defeat)
       }
     ]
-        |> runTestCases "testState" state
+        |> runTestCases "state" state
 
 
 testPickLetter : Test

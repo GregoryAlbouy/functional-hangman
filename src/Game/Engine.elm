@@ -57,7 +57,7 @@ withChances n model =
 
 
 type State
-    = NotStarted
+    = NotReady
     | Running
     | Ended End
 
@@ -70,7 +70,7 @@ type End
 state : Model -> State
 state ({ word, chances } as model) =
     if List.isEmpty model.word || chances == 0 then
-        NotStarted
+        NotReady
 
     else if List.all (flip isLetterPicked model) word then
         Ended Victory
