@@ -1,7 +1,7 @@
-module GameEngineTests exposing (testChancesLeft, testPickLetter, testState, testWordRepr)
+module GameEngineTests exposing (testChancesLeft, testChancesLeftRecursive, testPickLetter, testState, testWordRepr)
 
 import Expect
-import Game.Engine exposing (End(..), Model, State(..), chancesLeft, init, isLetterPicked, pickLetter, state, wordRepr)
+import Game.Engine exposing (End(..), Model, State(..), chancesLeft, chancesLeftRecursive, init, isLetterPicked, pickLetter, state, wordRepr)
 import Test exposing (Test, describe, test)
 
 
@@ -120,6 +120,32 @@ testChancesLeft =
       }
     ]
         |> runTestCases "chancesLeft" chancesLeft
+
+
+testChancesLeftRecursive : Test
+testChancesLeftRecursive =
+    [ { name = "good pick does not decrement"
+      , model = initModel |> pickLetter 'l'
+      , exp = Expect.equal 3
+      }
+    , { name = "bad pick decrements"
+      , model = initModel |> pickLetter 'x'
+      , exp = Expect.equal 2
+      }
+    , { name = "duplicate pick does not decrement"
+      , model = initModel |> pickLetter 'x' |> pickLetter 'x'
+      , exp = Expect.equal 2
+      }
+    , { name = "post-win pick does not decrement"
+      , model = wonModel |> pickLetter 'x'
+      , exp = Expect.equal 3
+      }
+    , { name = "post-lose pick does not decrement"
+      , model = lostModel |> pickLetter 'x'
+      , exp = Expect.equal 0
+      }
+    ]
+        |> runTestCases "chancesLeftRecursive" chancesLeftRecursive
 
 
 testWordRepr : Test
