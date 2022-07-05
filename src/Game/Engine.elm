@@ -68,11 +68,11 @@ type End
 
 
 state : Model -> State
-state model =
-    if List.isEmpty model.word then
+state ({ word, chances } as model) =
+    if List.isEmpty model.word || chances == 0 then
         NotStarted
 
-    else if List.all (flip isLetterPicked model) model.word then
+    else if List.all (flip isLetterPicked model) word then
         Ended Victory
 
     else if chancesLeft model == 0 then
