@@ -14,6 +14,8 @@ type alias Model =
     }
 
 
+{-| Initial state of an uninitialized game.
+-}
 empty : Model
 empty =
     { word = Nothing
@@ -22,6 +24,8 @@ empty =
     }
 
 
+{-| Initializes a new game with given word and chances.
+-}
 init : String -> Int -> Model
 init wordToGuess chances =
     empty
@@ -84,6 +88,8 @@ state model =
 -- UPDATE
 
 
+{-| Pick input `letter` if the game is running, else it does nothing.
+-}
 pickLetter : Char -> Model -> Model
 pickLetter letter model =
     case state model of
@@ -98,6 +104,9 @@ pickLetter letter model =
 -- VIEW
 
 
+{-| Word representation of the current `model`, with found letters revealed
+and missing ones replaced by `emptyRepr`.
+-}
 wordRepr : Char -> Model -> List Char
 wordRepr emptyRepr model =
     let
@@ -133,6 +142,8 @@ chancesLeft model =
     Set.foldl (decrementIfUnmatched model) model.chances model.pickedLetters
 
 
+{-| Same as `chancesLeft`, in a recursive fashion.
+-}
 chancesLeftRecursive : Model -> Int
 chancesLeftRecursive model =
     let
@@ -167,16 +178,26 @@ chancesLeft model =
 -- HELPERS
 
 
+{-| Whether input `letter` has been picked previously.
+
+TODO: unexpose function (used by tests only)
+
+-}
 isLetterPicked : Char -> Model -> Bool
 isLetterPicked letter model =
     Set.member letter model.pickedLetters
 
 
+{-| Whether input `letter` is absent from `model.word`.
+-}
 isUnmatched : Char -> Model -> Bool
 isUnmatched letter model =
     not <| List.member letter (unwrapWord model.word)
 
 
+{-| `n - 1` if input `letter` is absent from `model.word`,
+else `n`.
+-}
 decrementIfUnmatched : Model -> Char -> Int -> Int
 decrementIfUnmatched model letter n =
     if isUnmatched letter model then
@@ -186,11 +207,20 @@ decrementIfUnmatched model letter n =
         n
 
 
+{-| Unwrap word from Maybe.
+
+    unwrapWord (Maybe [ 'h', 'i' ]) == Just [ 'h', 'i' ]
+
+    unwrapWord Nothing == Just []
+
+-}
 unwrapWord : Maybe (List Char) -> List Char
 unwrapWord maybeWord =
     Maybe.withDefault [] maybeWord
 
 
+{-| Flip parameters of `fn` (arity 2)
+-}
 flip : (a -> b -> c) -> b -> a -> c
 flip fn b a =
     fn a b
