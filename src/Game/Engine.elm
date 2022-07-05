@@ -8,7 +8,7 @@ import Set exposing (Set)
 
 
 type alias Model =
-    { word : Maybe (List Char)
+    { word : List Char
     , pickedLetters : Set Char
     , chances : Int
     }
@@ -18,7 +18,7 @@ type alias Model =
 -}
 empty : Model
 empty =
-    { word = Nothing
+    { word = []
     , pickedLetters = Set.empty
     , chances = 0
     }
@@ -39,7 +39,7 @@ init wordToGuess chances =
 
 withWord : String -> Model -> Model
 withWord word model =
-    { model | word = Just (String.toList word) }
+    { model | word = String.toList word }
 
 
 withPickedLetter : Char -> Model -> Model
@@ -69,19 +69,17 @@ type End
 
 state : Model -> State
 state model =
-    case model.word of
-        Nothing ->
-            NotStarted
+    if List.isEmpty model.word then
+        NotStarted
 
-        Just word ->
-            if List.all (flip isLetterPicked model) word then
-                Ended Victory
+    else if List.all (flip isLetterPicked model) model.word then
+        Ended Victory
 
-            else if chancesLeft model == 0 then
-                Ended Defeat
+    else if chancesLeft model == 0 then
+        Ended Defeat
 
-            else
-                Running
+    else
+        Running
 
 
 
@@ -110,10 +108,6 @@ and missing ones replaced by `emptyRepr`.
 wordRepr : Char -> Model -> List Char
 wordRepr emptyRepr model =
     let
-        word : List Char
-        word =
-            unwrapWord model.word
-
         hideUnpicked : Char -> Char
         hideUnpicked letter =
             if isLetterPicked letter model then
@@ -128,10 +122,10 @@ wordRepr emptyRepr model =
     in
     case state model of
         Running ->
-            List.map showFoundLetters word
+            List.map showFoundLetters model.word
 
         _ ->
-            word
+            model.word
 
 
 {-| Compute remaining chances based on model, by substracting to`model.chances`
@@ -192,7 +186,7 @@ isLetterPicked letter model =
 -}
 isUnmatched : Char -> Model -> Bool
 isUnmatched letter model =
-    not <| List.member letter (unwrapWord model.word)
+    not <| List.member letter model.word
 
 
 {-| `n - 1` if input `letter` is absent from `model.word`,
@@ -205,18 +199,6 @@ decrementIfUnmatched model letter n =
 
     else
         n
-
-
-{-| Unwrap word from Maybe.
-
-    unwrapWord (Maybe [ 'h', 'i' ]) == Just [ 'h', 'i' ]
-
-    unwrapWord Nothing == Just []
-
--}
-unwrapWord : Maybe (List Char) -> List Char
-unwrapWord maybeWord =
-    Maybe.withDefault [] maybeWord
 
 
 {-| Flip parameters of `fn` (arity 2)
