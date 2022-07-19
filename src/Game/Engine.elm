@@ -159,12 +159,7 @@ chancesLeftRecursive model =
 {--
 chancesLeft : Model -> Int
 chancesLeft model =
-    let
-        substractToChances : Int -> Int
-        substractToChances n =
-            model.chances - n
-    in
-    substractToChances << Set.size << Set.filter (flip isUnmatched model) <| model.pickedLetters
+    (-) model.chances << Set.size << Set.filter (flip isUnmatched model) <| model.pickedLetters
 --}
 
 
