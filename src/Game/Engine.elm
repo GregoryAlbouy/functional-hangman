@@ -142,15 +142,15 @@ chancesLeftRecursive : Model -> Int
 chancesLeftRecursive model =
     let
         recurse : List Char -> Int -> Int
-        recurse letters count =
+        recurse letters remainingChances =
             case letters of
-                letter :: rest ->
-                    count
-                        |> decrementIfUnmatched model letter
-                        |> recurse rest
+                currentLetter :: otherLetters ->
+                    remainingChances
+                        |> decrementIfUnmatched model currentLetter
+                        |> recurse otherLetters
 
                 _ ->
-                    count
+                    remainingChances
     in
     recurse (Set.toList model.pickedLetters) model.chances
 
