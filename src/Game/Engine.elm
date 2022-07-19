@@ -128,12 +128,25 @@ wordRepr emptyRepr model =
             model.word
 
 
+{--}
 {-| Compute remaining chances based on model, by substracting to`model.chances`
 the count of unmatching letters in `model.pickedLetters`.
 -}
 chancesLeft : Model -> Int
 chancesLeft model =
     Set.foldl (decrementIfUnmatched model) model.chances model.pickedLetters
+--}
+
+
+
+{--
+{-| Compute remaining chances based on model, by substracting to`model.chances`
+the count of unmatching letters in `model.pickedLetters`.
+-}
+chancesLeft : Model -> Int
+chancesLeft model =
+    (-) model.chances << Set.size << Set.filter (flip isUnmatched model) <| model.pickedLetters
+--}
 
 
 {-| Same as `chancesLeft`, in a recursive fashion.
@@ -156,14 +169,6 @@ chancesLeftRecursive model =
 
 
 
-{--
-chancesLeft : Model -> Int
-chancesLeft model =
-    (-) model.chances << Set.size << Set.filter (flip isUnmatched model) <| model.pickedLetters
---}
-
-
-{--}
 -- HELPERS
 
 
